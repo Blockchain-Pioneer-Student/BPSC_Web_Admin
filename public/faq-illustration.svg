@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="250" height="150" viewBox="0 0 250 150" fill="none">
+  <defs>
+    <linearGradient id="faqGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#004987" />
+      <stop offset="100%" stop-color="#00a1e0" />
+    </linearGradient>
+    <filter id="glow3" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <linearGradient id="bubbleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#004987" stop-opacity="0.1" />
+      <stop offset="100%" stop-color="#00a1e0" stop-opacity="0.1" />
+    </linearGradient>
+  </defs>
+  <rect x="50" y="30" width="150" height="90" rx="10" fill="url(#bubbleGradient)"/>
+  
+  <path d="M125 80C125 75.5817 128.582 72 133 72C137.418 72 141 75.5817 141 80C141 82.3834 139.831 84.4834 138 85.7337V88C138 89.1046 137.105 90 136 90H130C128.895 90 128 89.1046 128 88V85.7337C126.169 84.4834 125 82.3834 125 80Z" fill="white" stroke="url(#faqGradient)" stroke-width="2" filter="url(#glow3)"/>
+  <path d="M130 98H136V96C136 94.8954 135.105 94 134 94H132C130.895 94 130 94.8954 130 96V98Z" fill="white" stroke="url(#faqGradient)" stroke-width="2" filter="url(#glow3)"/>
+  
+  <path d="M100 60C100 55.5817 103.582 52 108 52C112.418 52 116 55.5817 116 60C116 62.3834 114.831 64.4834 113 65.7337V68C113 69.1046 112.105 70 111 70H105C103.895 70 103 69.1046 103 68V65.7337C101.169 64.4834 100 62.3834 100 60Z" fill="white" stroke="url(#faqGradient)" stroke-width="2" filter="url(#glow3)">
+    <animate attributeName="opacity" values="1;0.7;1" dur="3s" repeatCount="indefinite" />
+  </path>
+  <path d="M105 78H111V76C111 74.8954 110.105 74 109 74H107C105.895 74 105 74.8954 105 76V78Z" fill="white" stroke="url(#faqGradient)" stroke-width="2" filter="url(#glow3)">
+    <animate attributeName="opacity" values="1;0.7;1" dur="3s" repeatCount="indefinite" />
+  </path>
+  
+  <path d="M150 60C150 55.5817 153.582 52 158 52C162.418 52 166 55.5817 166 60C166 62.3834 164.831 64.4834 163 65.7337V68C163 69.1046 162.105 70 161 70H155C153.895 70 153 69.1046 153 68V65.7337C151.169 64.4834 150 62.3834 150 60Z" fill="white" stroke="url(#faqGradient)" stroke-width="2" filter="url(#glow3)">
+    <animate attributeName="opacity" values="1;0.7;1" dur="3s" repeatCount="indefinite" begin="1.5s" />
+  </path>
+  <path d="M155 78H161V76C161 74.8954 160.105 74 159 74H157C155.895 74 155 74.8954 155 76V78Z" fill="white" stroke="url(#faqGradient)" stroke-width="2" filter="url(#glow3)">
+    <animate attributeName="opacity" values="1;0.7;1" dur="3s" repeatCount="indefinite" begin="1.5s" />
+  </path>
+  
+  <path d="M50 40C50 34.4772 54.4772 30 60 30H190C195.523 30 200 34.4772 200 40V110C200 115.523 195.523 120 190 120H60C54.4772 120 50 115.523 50 110V40Z" stroke="url(#faqGradient)" stroke-width="2.5"/>
+  
+  <path d="M30 50H40" stroke="url(#faqGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M210 50H220" stroke="url(#faqGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M30 100H40" stroke="url(#faqGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M210 100H220" stroke="url(#faqGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Animated elements -->
+  <circle cx="125" cy="75" r="55" stroke="url(#faqGradient)" stroke-width="1" stroke-dasharray="5 3" opacity="0.3">
+    <animate attributeName="r" values="55;58;55" dur="4s" repeatCount="indefinite" />
+    <animate attributeName="stroke-opacity" values="0.3;0.1;0.3" dur="4s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Decorative elements -->
+  <path d="M220 75C220 70 225 65 230 65" stroke="url(#faqGradient)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 2" opacity="0.7" />
+  <path d="M30 75C30 80 25 85 20 85" stroke="url(#faqGradient)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="3 2" opacity="0.7" />
+</svg>

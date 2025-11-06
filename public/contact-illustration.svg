@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120" fill="none">
+  <defs>
+    <linearGradient id="contactGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#004987" />
+      <stop offset="100%" stop-color="#00a1e0" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <path d="M100 20C88.9543 20 80 28.9543 80 40C80 51.0457 88.9543 60 100 60C111.046 60 120 51.0457 120 40C120 28.9543 111.046 20 100 20Z" fill="#E6EEF6"/>
+  <path d="M140 100H60C57.7909 100 56 98.2091 56 96V84C56 71.8497 65.8497 62 78 62H122C134.15 62 144 71.8497 144 84V96C144 98.2091 142.209 100 140 100Z" fill="#E6EEF6"/>
+  <path d="M100 54C108.837 54 116 46.8366 116 38C116 29.1634 108.837 22 100 22C91.1634 22 84 29.1634 84 38C84 46.8366 91.1634 54 100 54Z" stroke="url(#contactGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <path d="M60 96V84C60 74.0589 68.0589 66 78 66H122C131.941 66 140 74.0589 140 84V96" stroke="url(#contactGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <path d="M32 40H44" stroke="url(#contactGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M156 40H168" stroke="url(#contactGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M38 20L46 28" stroke="url(#contactGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M154 28L162 20" stroke="url(#contactGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M38 60L46 52" stroke="url(#contactGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M154 52L162 60" stroke="url(#contactGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Decorative elements -->
+  <circle cx="100" cy="40" r="40" fill="url(#contactGradient)" fill-opacity="0.05" />
+  <path d="M30 90C30 79 39 70 50 70C61 70 70 79 70 90" stroke="url(#contactGradient)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4" />
+  <path d="M130 90C130 79 139 70 150 70C161 70 170 79 170 90" stroke="url(#contactGradient)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="4 4" />
+</svg>

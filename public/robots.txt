@@ -1,0 +1,54 @@
+# Robots.txt for Blockchain Pioneer Student UTC
+# https://blockchain-utc.vercel.app
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://blockchain-utc.vercel.app/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Block access to admin and API routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow important pages
+Allow: /events/
+Allow: /news/
+Allow: /about/
+Allow: /contact/
+Allow: /join/
+Allow: /team/
+Allow: /partners/
+Allow: /media/
+
+# Block duplicate content
+Disallow: /*?*
+Disallow: /*#
+
+# Allow social media crawlers
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# Block bad bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /

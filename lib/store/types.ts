@@ -1,0 +1,22 @@
+// Types for User
+export interface User {
+  id: number;
+  access_token: string;
+  avatar_url: string;
+  email: string;
+  is_verified: boolean;
+  role: string;
+  username: string;
+}
+
+// Auth state interface
+export interface AuthState {
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+// Root state type
+export interface RootState {
+  auth: AuthState;
+}

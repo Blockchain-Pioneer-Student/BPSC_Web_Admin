@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120" fill="none">
+  <defs>
+    <linearGradient id="successGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#004987" />
+      <stop offset="100%" stop-color="#00a1e0" />
+    </linearGradient>
+    <filter id="glow2" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+    <linearGradient id="circleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#004987" stop-opacity="0.2" />
+      <stop offset="100%" stop-color="#00a1e0" stop-opacity="0.2" />
+    </linearGradient>
+  </defs>
+  <circle cx="100" cy="60" r="40" fill="url(#circleGradient)"/>
+  <path d="M80 60L94 74L120 48" stroke="url(#successGradient)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow2)"/>
+  <path d="M160 60C160 82.0914 142.091 100 120 100H80C57.9086 100 40 82.0914 40 60C40 37.9086 57.9086 20 80 20H120C142.091 20 160 37.9086 160 60Z" stroke="url(#successGradient)" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 4"/>
+  <path d="M32 40H44" stroke="url(#successGradient)" stroke-width="2"  stroke-dasharray="4 4"/>
+  <path d="M32 40H44" stroke="url(#successGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M156 40H168" stroke="url(#successGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M32 80H44" stroke="url(#successGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M156 80H168" stroke="url(#successGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M38 20L46 28" stroke="url(#successGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M154 28L162 20" stroke="url(#successGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M38 100L46 92" stroke="url(#successGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M154 92L162 100" stroke="url(#successGradient)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  
+  <!-- Animated elements -->
+  <circle cx="100" cy="60" r="45" stroke="url(#successGradient)" stroke-width="1" stroke-dasharray="6 3">
+    <animate attributeName="r" values="45;48;45" dur="3s" repeatCount="indefinite" />
+    <animate attributeName="stroke-opacity" values="1;0.6;1" dur="3s" repeatCount="indefinite" />
+  </circle>
+  
+  <!-- Decorative stars -->
+  <path d="M40 30L42 34L46 35L43 38L44 42L40 40L36 42L37 38L34 35L38 34L40 30Z" fill="url(#successGradient)" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" repeatCount="indefinite" />
+  </path>
+  <path d="M160 90L162 94L166 95L163 98L164 102L160 100L156 102L157 98L154 95L158 94L160 90Z" fill="url(#successGradient)" opacity="0.7">
+    <animate attributeName="opacity" values="0.7;0.3;0.7" dur="2s" repeatCount="indefinite" begin="1s" />
+  </path>
+</svg>
