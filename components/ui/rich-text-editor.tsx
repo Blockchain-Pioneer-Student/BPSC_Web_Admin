@@ -87,7 +87,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
           // Custom toolbar groups
           toolbar_mode: 'sliding',
           // Image upload (you can customize this)
-images_upload_handler: (blobInfo) => {
+          images_upload_handler: (blobInfo: any) => {
   return new Promise((resolve) => {
     const img = 'data:image/jpeg;base64,' + blobInfo.base64();
     resolve(img);
