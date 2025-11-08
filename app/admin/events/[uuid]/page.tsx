@@ -64,7 +64,7 @@ interface Schedule {
 export default function AdminEventEditPage() {
   const params = useParams();
   const router = useRouter();
-  const eventId = params.id as string;
+  const eventUuid = params.uuid as string;
 
   // Event data state
   const [event, setEvent] = useState<Event | null>(null);
@@ -77,6 +77,7 @@ export default function AdminEventEditPage() {
     categories,
     categoriesLoading,
     updateEvent,
+    getEventByUuid,
     handleInputChange: hookHandleInputChange,
     handleImageUpload: hookHandleImageUpload,
     handleAddSpeaker: hookHandleAddSpeaker,
@@ -125,12 +126,12 @@ export default function AdminEventEditPage() {
 
   // Fetch event data
   useEffect(() => {
-    if (!eventId) return;
+    if (!eventUuid) return;
 
     const fetchEvent = async () => {
       try {
         setLoading(true);
-        const eventData = await eventService.getEventById(parseInt(eventId));
+        const eventData = await getEventByUuid(eventUuid);
         
         if (eventData) {
           setEvent(eventData);
@@ -159,7 +160,7 @@ export default function AdminEventEditPage() {
     };
 
     fetchEvent();
-  }, [eventId]);
+  }, [eventUuid, getEventByUuid]);
 
   // Cleanup blob URLs on unmount
   useEffect(() => {
@@ -315,7 +316,7 @@ export default function AdminEventEditPage() {
       }
       
       // Call API to update event
-      await updateEvent(parseInt(eventId), apiData);
+      await updateEvent(eventUuid, apiData);
       
       // Redirect back to events list after a delay
       setTimeout(() => {

@@ -26,6 +26,7 @@ interface EventSpeaker {
 
 interface Event {
   id: number;
+  event_uuid: string;
   title: string;
   date: string;
   time?: string;
@@ -130,6 +131,29 @@ class EventService {
     }
   }
 
+  async getEventByUuid(uuid: string): Promise<Event> {
+    try {
+      const url = `${this.baseURL}/events/uuid/${uuid}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data: Event = await response.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching event by UUID:', error);
+      throw error;
+    }
+  }
+
   async getEventById(id: number): Promise<Event> {
     try {
       const url = `${this.baseURL}/events/${id}`;
@@ -226,9 +250,9 @@ class EventService {
     }
   }
 
-  async updateEvent(id: number, updateData: Partial<Event & { image_file?: File }>): Promise<Event> {
+  async updateEvent(uuid: string, updateData: Partial<Event & { image_file?: File }>): Promise<Event> {
     try {
-      const url = `${this.baseURL}/events/update/${id}`; // Using test endpoint for now
+      const url = `${this.baseURL}/events/update/${uuid}`;
 
       const formData = new FormData();
 
@@ -295,9 +319,9 @@ class EventService {
     }
   }
 
-  async deleteEvent(id: number): Promise<any> {
+  async deleteEvent(uuid: string): Promise<any> {
     try {
-      const url = `${API_BASE_URL}/events/${id}`;
+      const url = `${API_BASE_URL}/events/uuid/${uuid}`;
 
       const response = await fetch(url, {
         method: 'DELETE',

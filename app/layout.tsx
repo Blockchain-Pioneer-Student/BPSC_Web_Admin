@@ -208,9 +208,9 @@ export default function RootLayout({
               <div className="relative">
                 <ParticlesBackground />
               </div>
-              {/* <SiteHeader /> */}
+              <SiteHeader />
               <main className="flex-1">{children}</main>
-              {/* <SiteFooter /> */}
+              <SiteFooter />
             </div>
             <Toaster />
           </ThemeProvider>

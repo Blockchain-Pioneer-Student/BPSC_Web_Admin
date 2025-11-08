@@ -51,9 +51,10 @@ interface UseEventReturn {
   setSortBy: (sort: string) => void;
   fetchEvents: () => Promise<void>;
   refreshEvents: () => Promise<void>;
-  handleDelete: (eventId: number) => Promise<void>;
+  handleDelete: (eventUuid: string) => Promise<void>;
   createEvent: (eventData: CreateEventData) => Promise<void>;
-  updateEvent: (id: number, updateData: any) => Promise<Event>;
+  updateEvent: (uuid: string, updateData: any) => Promise<Event>;
+  getEventByUuid: (uuid: string) => Promise<Event>;
   
   // Form management functions
   handleInputChange: (field: string, value: any, formData: any, setFormData: any) => void;
@@ -147,10 +148,10 @@ export const useEvent = (): UseEventReturn => {
   }, [refreshEvents]);
 
   // Update event function
-  const updateEvent = useCallback(async (id: number, updateData: any) => {
+  const updateEvent = useCallback(async (uuid: string, updateData: any) => {
     try {
-      console.log('Updating event:', id, 'with data:', updateData);
-      const response = await eventService.updateEvent(id, updateData);
+      console.log('Updating event:', uuid, 'with data:', updateData);
+      const response = await eventService.updateEvent(uuid, updateData);
       
       toast.success("Event updated successfully");
       await refreshEvents();
@@ -163,7 +164,7 @@ export const useEvent = (): UseEventReturn => {
   }, [refreshEvents]);
 
   // Delete event function
-  const handleDelete = useCallback(async (eventId: number) => {
+  const handleDelete = useCallback(async (eventUuid: string) => {
     // Show confirmation dialog
     const confirmed = window.confirm(
       "Are you sure you want to delete this event? This action cannot be undone."
@@ -174,8 +175,8 @@ export const useEvent = (): UseEventReturn => {
     }
 
     try {
-      console.log('Deleting event:', eventId);
-      await eventService.deleteEvent(eventId);
+      console.log('Deleting event:', eventUuid);
+      await eventService.deleteEvent(eventUuid);
       
       toast.success("Event deleted successfully");
       await refreshEvents();
@@ -185,6 +186,18 @@ export const useEvent = (): UseEventReturn => {
       throw error;
     }
   }, [refreshEvents]);
+
+  // Get event by UUID function
+  const getEventByUuid = useCallback(async (uuid: string): Promise<Event> => {
+    try {
+      const response = await eventService.getEventByUuid(uuid);
+      return response;
+    } catch (error) {
+      console.error("Error fetching event by UUID:", error);
+      toast.error("Unable to fetch event. Please try again.");
+      throw error;
+    }
+  }, []);
 
   // Form management functions
   const handleInputChange = useCallback((field: string, value: any, formData: any, setFormData: any) => {
@@ -333,6 +346,7 @@ export const useEvent = (): UseEventReturn => {
     handleDelete,
     createEvent,
     updateEvent,
+    getEventByUuid,
     
     // Form management functions
     handleInputChange,

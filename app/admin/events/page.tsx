@@ -215,7 +215,7 @@ export default function AdminEventsPage() {
               <div className="space-y-4">
                 {currentEvents.map((event) => (
                   <div
-                    key={event.id}
+                    key={event.event_uuid}
                     className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow duration-200"
                   >
                     <div className="flex items-start justify-between">
@@ -290,7 +290,7 @@ export default function AdminEventsPage() {
                           className="text-blue-600 hover:text-blue-700"
                           asChild
                         >
-                          <Link href={`/events/${event.id}`} target="_blank">
+                          <Link href={`/events/${event.event_uuid}`} target="_blank">
                             <Eye className="w-4 h-4 mr-1" />
                             View
                           </Link>
@@ -302,7 +302,7 @@ export default function AdminEventsPage() {
                           className="text-yellow-600 hover:text-yellow-700"
                           asChild
                         >
-                          <Link href={`/admin/events/${event.id}`}>
+                          <Link href={`/admin/events/${event.event_uuid}`}>
                             <Edit className="w-4 h-4 mr-1" />
                             Edit
                           </Link>
@@ -312,7 +312,7 @@ export default function AdminEventsPage() {
                           variant="outline"
                           size="sm"
                           className="text-red-600 hover:text-red-700"
-                          onClick={() => handleDelete(event.id)}
+                          onClick={() => handleDelete(event.event_uuid)}
                         >
                           <Trash2 className="w-4 h-4 mr-1" />
                           Delete
