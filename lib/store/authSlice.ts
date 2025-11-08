@@ -1,23 +1,9 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { User, AuthState } from './types';
 
-// Get user from localStorage if available
-const getUserFromStorage = (): User | null => {
-  if (typeof window !== 'undefined') {
-    try {
-      const savedUser = localStorage.getItem('user');
-      return savedUser ? JSON.parse(savedUser) : null;
-    } catch (error) {
-      console.error('Error parsing user from localStorage:', error);
-      return null;
-    }
-  }
-  return null;
-};
-
 // Initial state
 const initialState: AuthState = {
-  user: getUserFromStorage(),
+  user: null,
   isLoading: false,
   error: null,
 };
@@ -35,10 +21,6 @@ const authSlice = createSlice({
       state.user = action.payload;
       state.isLoading = false;
       state.error = null;
-      // Save to localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('user', JSON.stringify(action.payload));
-      }
     },
     loginError: (state, action: PayloadAction<string>) => {
       state.isLoading = false;
@@ -48,10 +30,10 @@ const authSlice = createSlice({
       state.user = null;
       state.isLoading = false;
       state.error = null;
-      // Clear localStorage
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('user');
-        localStorage.removeItem('access_token');
+    },
+    updateTokens: (state, action: PayloadAction<{ access_token: string }>) => {
+      if (state.user) {
+        state.user.access_token = action.payload.access_token;
       }
     },
     clearError: (state) => {
@@ -60,5 +42,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { loginStart, login, loginError, logout, clearError } = authSlice.actions;
+export const { loginStart, login, loginError, logout, updateTokens, clearError } = authSlice.actions;
 export default authSlice.reducer;
