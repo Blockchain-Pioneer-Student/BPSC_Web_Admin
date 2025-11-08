@@ -249,10 +249,14 @@ export default function AdminEventEditPage() {
       changes.specific_location = formData.specific_location || undefined;
     }
     
-    // Don't include image changes here if we have a file to upload
-    // The image_file will be handled separately
-    if (imageChanged && !selectedImageFile && formData.image !== originalData.image) {
-      changes.image = formData.image || undefined;
+    // Handle image changes - check if image was changed OR if we have a new file
+    if (imageChanged || selectedImageFile) {
+      // If we have a file to upload, mark it for the API call
+      if (selectedImageFile) {
+        changes._hasImageFile = true; // Flag to indicate we have a file
+      } else if (formData.image !== originalData.image) {
+        changes.image = formData.image || undefined;
+      }
     }
     
     if (formData.notion_content !== originalData.notion_content) {
@@ -297,16 +301,20 @@ export default function AdminEventEditPage() {
       // Get only changed fields
       const updateData = getChangedFields();
       
-      // If no changes, show message and return
-      if (Object.keys(updateData).length === 0) {
+      // If no changes AND no image file, show message and return
+      if (Object.keys(updateData).length === 0 && !selectedImageFile) {
         toast.info("No changes to save");
         return;
       }
       
       console.log("Update data (changed fields only):", updateData);
+      console.log("Selected image file:", selectedImageFile);
       
       // Prepare data for API call
       const apiData = { ...updateData };
+      
+      // Remove internal flags from API data
+      delete apiData._hasImageFile;
       
       // Handle image file upload
       if (imageChanged && selectedImageFile) {
