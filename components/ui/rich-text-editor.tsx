@@ -1,7 +1,17 @@
 "use client";
 
-import { useRef } from "react";
-import { Editor } from "@tinymce/tinymce-react";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
+
+// Dynamic import ReactQuill to avoid SSR issues
+const QuillNoSSRWrapper = dynamic(() => import('react-quill'), {
+  ssr: false,
+  loading: () => (
+    <div className="border rounded-lg h-96 flex items-center justify-center bg-gray-50">
+      <div className="text-gray-500">Loading editor...</div>
+    </div>
+  )
+});
 
 interface RichTextEditorProps {
   value: string;
@@ -10,8 +20,81 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ value, onChange, placeholder }: RichTextEditorProps) {
-  const editorRef = useRef<any>(null);
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't render until mounted to avoid SSR issues
+  if (!mounted) {
+    return (
+      <div className="border rounded-lg h-96 flex items-center justify-center bg-gray-50">
+        <div className="text-gray-500">Loading editor...</div>
+      </div>
+    );
+  }
+
+  // Quill modules configuration
+  const modules = {
+    toolbar: [
+      [{ header: '1' }, { header: '2' }, { header: '3' }, { header: false }],
+      [{ size: [] }],
+      ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+      [
+        { list: 'ordered' },
+        { list: 'bullet' },
+        { indent: '-1' },
+        { indent: '+1' },
+      ],
+      ['link', 'image'],
+      [{ color: [] }, { background: [] }],
+      [{ align: [] }],
+      ['clean'],
+    ],
+    clipboard: {
+      matchVisual: false,
+    }
+  };
+
+  // Quill formats
+  const formats = [
+    'header',
+    'size',
+    'bold',
+    'italic',
+    'underline',
+    'strike',
+    'blockquote',
+    'list',
+    'bullet',
+    'indent',
+    'link',
+    'image',
+    'color',
+    'background',
+    'align',
+  ];
+
+  const handleChange = (content: string) => {
+    onChange(content);
+  };
+
+  return (
+    <div className="quill-editor-wrapper rounded-lg border border-gray-200 bg-white shadow-sm">
+      <QuillNoSSRWrapper
+        theme="snow"
+        value={value}
+        onChange={handleChange}
+        modules={modules}
+        formats={formats}
+        placeholder={placeholder || "Nhập nội dung sự kiện..."}
+      />
+    </div>
+  );
+
+  // TinyMCE Editor - Commented out
+  /*
   const handleEditorChange = (content: string) => {
     onChange(content);
   };
@@ -19,7 +102,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
   return (
     <div className="border rounded-lg overflow-hidden">
       <Editor
-        apiKey="um1n2yyk9t6ytgltph4g2lupbiogzt1kexhx2mf9em7dqf6l" // You can get a free API key from TinyMCE
+        apiKey={process.env.TINY_MCE_API_KEY} // You can get a free API key from TinyMCE
         onInit={(_evt: any, editor: any) => editorRef.current = editor}
         value={value}
         onEditorChange={handleEditorChange}
@@ -88,11 +171,11 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
           toolbar_mode: 'sliding',
           // Image upload (you can customize this)
           images_upload_handler: (blobInfo: any) => {
-  return new Promise((resolve) => {
-    const img = 'data:image/jpeg;base64,' + blobInfo.base64();
-    resolve(img);
-  });
-},
+            return new Promise((resolve) => {
+              const img = 'data:image/jpeg;base64,' + blobInfo.base64();
+              resolve(img);
+            });
+          },
           // Link options
           link_default_target: '_blank',
           link_assume_external_targets: true,
@@ -126,4 +209,5 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       />
     </div>
   );
+  */
 }

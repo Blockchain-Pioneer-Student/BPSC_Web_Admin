@@ -244,3 +244,139 @@
     display: block;
   }
 }
+
+/* Quill Editor Styles */
+@import 'quill/dist/quill.core.css';
+@import 'quill/dist/quill.snow.css';
+
+/* Custom wrapper for better integration */
+.quill-editor-wrapper {
+  @apply overflow-hidden;
+}
+
+.quill-editor-wrapper .ql-toolbar {
+  @apply bg-gray-50 border-0 border-b border-gray-200 p-2 rounded-t-lg;
+}
+
+.quill-editor-wrapper .ql-container {
+  @apply border-0 rounded-b-lg;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.quill-editor-wrapper .ql-editor {
+  @apply p-4 min-h-[400px] focus:outline-none text-sm leading-relaxed;
+}
+
+/* Toolbar button styling */
+.quill-editor-wrapper .ql-toolbar button {
+  @apply w-7 h-7 p-1 m-0.5 rounded hover:bg-gray-200 transition-colors duration-200;
+  border: none !important;
+  outline: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.quill-editor-wrapper .ql-toolbar button svg {
+  @apply w-4 h-4;
+}
+
+/* Dropdown styling */
+.quill-editor-wrapper .ql-toolbar .ql-picker-label {
+  @apply px-2 py-1 rounded hover:bg-gray-200 transition-colors duration-200 text-sm;
+  border: none !important;
+  outline: none !important;
+  height: 28px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.quill-editor-wrapper .ql-toolbar .ql-picker-options {
+  @apply text-sm p-1 bg-white border border-gray-200 rounded shadow-lg;
+}
+
+.quill-editor-wrapper .ql-toolbar .ql-picker-item {
+  @apply px-3 py-2 hover:bg-gray-100 transition-colors duration-200;
+}
+
+/* Format spacing */
+.quill-editor-wrapper .ql-toolbar .ql-formats {
+  @apply mr-4;
+}
+
+/* Content styling with brand colors */
+.quill-editor-wrapper .ql-editor h1, 
+.quill-editor-wrapper .ql-editor h2, 
+.quill-editor-wrapper .ql-editor h3, 
+.quill-editor-wrapper .ql-editor h4, 
+.quill-editor-wrapper .ql-editor h5, 
+.quill-editor-wrapper .ql-editor h6 {
+  @apply font-semibold mt-4 mb-2;
+  color: #004987 !important;
+}
+
+.quill-editor-wrapper .ql-editor h1 { @apply text-2xl; }
+.quill-editor-wrapper .ql-editor h2 { @apply text-xl; }
+.quill-editor-wrapper .ql-editor h3 { @apply text-lg; }
+
+.quill-editor-wrapper .ql-editor a {
+  @apply underline;
+  color: #004987 !important;
+}
+
+.quill-editor-wrapper .ql-editor p {
+  @apply mb-4;
+}
+
+.quill-editor-wrapper .ql-editor ul, 
+.quill-editor-wrapper .ql-editor ol {
+  @apply mb-4 ml-6;
+}
+
+.quill-editor-wrapper .ql-editor blockquote {
+  @apply my-4 px-4 py-2 bg-gray-50 rounded;
+  border-left: 4px solid #004987 !important;
+}
+
+.quill-editor-wrapper .ql-editor code {
+  @apply bg-gray-100 px-1 py-0.5 rounded text-sm;
+  font-family: 'Monaco', 'Consolas', monospace;
+}
+
+.quill-editor-wrapper .ql-editor pre {
+  @apply bg-gray-100 p-4 rounded overflow-x-auto border border-gray-200 my-4;
+}
+
+/* Active and hover states with brand colors */
+.quill-editor-wrapper .ql-snow .ql-picker-label:hover,
+.quill-editor-wrapper .ql-snow .ql-picker-label.ql-active,
+.quill-editor-wrapper .ql-snow .ql-picker-item:hover,
+.quill-editor-wrapper .ql-snow .ql-picker-item.ql-selected {
+  color: #004987 !important;
+}
+
+.quill-editor-wrapper .ql-snow.ql-toolbar button:hover,
+.quill-editor-wrapper .ql-snow .ql-toolbar button:hover,
+.quill-editor-wrapper .ql-snow.ql-toolbar button.ql-active,
+.quill-editor-wrapper .ql-snow .ql-toolbar button.ql-active {
+  color: #004987 !important;
+}
+
+.quill-editor-wrapper .ql-snow.ql-toolbar button:hover .ql-stroke,
+.quill-editor-wrapper .ql-snow .ql-toolbar button:hover .ql-stroke,
+.quill-editor-wrapper .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.quill-editor-wrapper .ql-snow .ql-toolbar button.ql-active .ql-stroke {
+  stroke: #004987 !important;
+}
+
+.quill-editor-wrapper .ql-snow.ql-toolbar button:hover .ql-fill,
+.quill-editor-wrapper .ql-snow .ql-toolbar button:hover .ql-fill,
+.quill-editor-wrapper .ql-snow.ql-toolbar button.ql-active .ql-fill,
+.quill-editor-wrapper .ql-snow .ql-toolbar button.ql-active .ql-fill {
+  fill: #004987 !important;
+}
+
+/* Placeholder styling */
+.quill-editor-wrapper .ql-editor.ql-blank::before {
+  @apply text-gray-400 italic;
+}

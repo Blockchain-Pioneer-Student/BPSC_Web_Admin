@@ -1,0 +1,95 @@
+/* Quill Editor Styles */
+@import url('https://cdn.quilljs.com/1.3.6/quill.snow.css');
+
+.ql-toolbar {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+.ql-container {
+  border: none !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+.ql-editor {
+  min-height: 400px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ql-editor h1, 
+.ql-editor h2, 
+.ql-editor h3, 
+.ql-editor h4, 
+.ql-editor h5, 
+.ql-editor h6 {
+  color: #004987;
+  font-weight: 600;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.ql-editor a {
+  color: #004987;
+}
+
+.ql-editor p {
+  margin: 0 0 1rem 0;
+}
+
+.ql-editor ul, 
+.ql-editor ol {
+  margin: 0 0 1rem 1.5rem;
+}
+
+.ql-editor blockquote {
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid #004987;
+  background-color: #f8f9fa;
+}
+
+.ql-editor code {
+  background-color: #f1f3f4;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: 'Monaco', 'Consolas', monospace;
+  font-size: 0.875em;
+}
+
+.ql-editor pre {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  border: 1px solid #e9ecef;
+}
+
+.ql-snow .ql-picker-label:hover,
+.ql-snow .ql-picker-label.ql-active,
+.ql-snow .ql-picker-item:hover,
+.ql-snow .ql-picker-item.ql-selected {
+  color: #004987;
+}
+
+.ql-snow.ql-toolbar button:hover,
+.ql-snow .ql-toolbar button:hover,
+.ql-snow.ql-toolbar button.ql-active,
+.ql-snow .ql-toolbar button.ql-active {
+  color: #004987;
+}
+
+.ql-snow.ql-toolbar button:hover .ql-stroke,
+.ql-snow .ql-toolbar button:hover .ql-stroke,
+.ql-snow.ql-toolbar button.ql-active .ql-stroke,
+.ql-snow .ql-toolbar button.ql-active .ql-stroke {
+  stroke: #004987;
+}
+
+.ql-snow.ql-toolbar button:hover .ql-fill,
+.ql-snow .ql-toolbar button:hover .ql-fill,
+.ql-snow.ql-toolbar button.ql-active .ql-fill,
+.ql-snow .ql-toolbar button.ql-active .ql-fill {
+  fill: #004987;
+}
