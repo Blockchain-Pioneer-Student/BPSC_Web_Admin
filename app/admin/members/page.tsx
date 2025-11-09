@@ -24,6 +24,7 @@ import {
 import { memberService, Member } from "@/lib/services/memberService";
 import { toast } from "sonner";
 import Link from "next/link";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -34,14 +35,15 @@ export default function AdminMembersPage() {
   
   // Filters and pagination
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(ITEMS_PER_PAGE);
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("display_order_ASC");
 
   // Pagination calculations
-  const totalPages = Math.max(1, Math.ceil(members.length / ITEMS_PER_PAGE));
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const totalPages = Math.max(1, Math.ceil(members.length / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
   const currentMembers = members.slice(startIndex, endIndex);
 
   // Fetch members function
@@ -95,6 +97,16 @@ export default function AdminMembersPage() {
     setCurrentPage(1);
     fetchMembers();
   }, [selectedStatus, searchQuery, sortBy]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
+  };
 
   return (
     <div className="space-y-6">
@@ -358,86 +370,14 @@ export default function AdminMembersPage() {
 
           {/* Pagination */}
           {!loading && members.length > 0 && (
-            <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-4 py-3 mt-6">
-              <div className="flex flex-1 justify-between sm:hidden">
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  disabled={currentPage === 1}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                  disabled={currentPage === totalPages}
-                >
-                  Next
-                </Button>
-              </div>
-              <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm text-gray-700">
-                    Showing <span className="font-medium">{startIndex + 1}</span> to{" "}
-                    <span className="font-medium">{Math.min(endIndex, members.length)}</span> of{" "}
-                    <span className="font-medium">{members.length}</span> results
-                  </p>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                    Previous
-                  </Button>
-                  
-                  <div className="flex items-center space-x-1">
-                    {Array.from({ length: totalPages }).map((_, index) => {
-                      const page = index + 1;
-                      const isCurrentPage = page === currentPage;
-                      
-                      // Show first, last, current, and pages around current
-                      if (
-                        page === 1 || 
-                        page === totalPages || 
-                        (page >= currentPage - 1 && page <= currentPage + 1)
-                      ) {
-                        return (
-                          <Button
-                            key={page}
-                            variant={isCurrentPage ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setCurrentPage(page)}
-                            className={isCurrentPage ? "bg-[#004987] hover:bg-[#003b6d]" : ""}
-                          >
-                            {page}
-                          </Button>
-                        );
-                      } else if (
-                        page === currentPage - 2 || 
-                        page === currentPage + 2
-                      ) {
-                        return <span key={page} className="px-2">...</span>;
-                      }
-                      return null;
-                    })}
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <AdminPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              itemsPerPage={itemsPerPage}
+              totalItems={members.length}
+              onPageChange={handlePageChange}
+              onItemsPerPageChange={handleItemsPerPageChange}
+            />
           )}
         </CardContent>
       </Card>

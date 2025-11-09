@@ -3,8 +3,6 @@ import type { Metadata, Viewport } from "next";
 import "@/app/globals.css";
 import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
 import { ParticlesBackground } from "@/components/particles-background";
 import { Toaster } from "@/components/ui/sonner";
 import { ReduxProvider } from "@/lib/providers/ReduxProvider";
@@ -208,9 +206,7 @@ export default function RootLayout({
               <div className="relative">
                 <ParticlesBackground />
               </div>
-              <SiteHeader />
               <main className="flex-1">{children}</main>
-              <SiteFooter />
             </div>
             <Toaster />
           </ThemeProvider>

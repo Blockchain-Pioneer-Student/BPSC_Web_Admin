@@ -23,6 +23,7 @@ import { useEvent } from "@/hooks/useEvent";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { AdminPagination } from "@/components/admin/AdminPagination";
 
 export default function AdminEventsPage() {
   // Use custom hook for event logic
@@ -37,6 +38,7 @@ export default function AdminEventsPage() {
     
     // Pagination
     currentPage,
+    itemsPerPage,
     totalPages,
     startIndex,
     endIndex,
@@ -49,6 +51,7 @@ export default function AdminEventsPage() {
     
     // Actions
     setCurrentPage,
+    setItemsPerPage,
     setSelectedCategory,
     setSearchQuery,
     setSortBy,
@@ -73,6 +76,16 @@ export default function AdminEventsPage() {
       hour: "2-digit",
       minute: "2-digit"
     });
+  };
+
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    setItemsPerPage(newItemsPerPage);
+    setCurrentPage(1);
   };
 
   // Handle search
@@ -326,69 +339,14 @@ export default function AdminEventsPage() {
 
             {/* Pagination */}
             {!loading && events.length > 0 && (
-              <div className="flex items-center justify-between mt-6 pt-6 border-t">
-                <div className="text-sm text-gray-700">
-                  Showing {startIndex + 1} - {Math.min(endIndex, events.length)} of {events.length} events
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                    disabled={currentPage === 1}
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                    Previous
-                  </Button>
-                  
-                  <div className="flex items-center gap-1">
-                    {[...Array(totalPages)].map((_, index) => {
-                      const pageNumber = index + 1;
-                      const isCurrentPage = pageNumber === currentPage;
-                      
-                      // Show page numbers around current page
-                      if (
-                        pageNumber === 1 ||
-                        pageNumber === totalPages ||
-                        (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
-                      ) {
-                        return (
-                          <Button
-                            key={pageNumber}
-                            variant={isCurrentPage ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setCurrentPage(pageNumber)}
-                            className={isCurrentPage ? "bg-[#004987] hover:bg-[#003366]" : ""}
-                          >
-                            {pageNumber}
-                          </Button>
-                        );
-                      }
-                      
-                      // Show ellipsis
-                      if (pageNumber === 2 && currentPage > 4) {
-                        return <span key="ellipsis1" className="px-2">...</span>;
-                      }
-                      if (pageNumber === totalPages - 1 && currentPage < totalPages - 3) {
-                        return <span key="ellipsis2" className="px-2">...</span>;
-                      }
-                      
-                      return null;
-                    })}
-                  </div>
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                    <ChevronRight className="w-4 h-4" />
-                  </Button>
-                </div>
-              </div>
+              <AdminPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                itemsPerPage={itemsPerPage}
+                totalItems={events.length}
+                onPageChange={handlePageChange}
+                onItemsPerPageChange={handleItemsPerPageChange}
+              />
             )}
           </CardContent>
         </Card>

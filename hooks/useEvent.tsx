@@ -34,6 +34,7 @@ interface UseEventReturn {
   
   // Pagination
   currentPage: number;
+  itemsPerPage: number;
   totalPages: number;
   startIndex: number;
   endIndex: number;
@@ -46,6 +47,7 @@ interface UseEventReturn {
   
   // Actions
   setCurrentPage: (page: number | ((prev: number) => number)) => void;
+  setItemsPerPage: (itemsPerPage: number) => void;
   setSelectedCategory: (category: string) => void;
   setSearchQuery: (query: string) => void;
   setSortBy: (sort: string) => void;
@@ -78,14 +80,15 @@ export const useEvent = (): UseEventReturn => {
   
   // Filters and pagination
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(ITEMS_PER_PAGE);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("created_at_DESC");
   
   // Pagination calculations
-  const totalPages = Math.max(1, Math.ceil(events.length / ITEMS_PER_PAGE));
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const totalPages = Math.max(1, Math.ceil(events.length / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
   const currentEvents = events.slice(startIndex, endIndex);
 
   // Fetch events function
@@ -326,6 +329,7 @@ export const useEvent = (): UseEventReturn => {
     
     // Pagination
     currentPage,
+    itemsPerPage,
     totalPages,
     startIndex,
     endIndex,
@@ -338,6 +342,7 @@ export const useEvent = (): UseEventReturn => {
     
     // Actions
     setCurrentPage,
+    setItemsPerPage,
     setSelectedCategory,
     setSearchQuery,
     setSortBy,
