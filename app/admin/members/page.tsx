@@ -331,22 +331,10 @@ export default function AdminMembersPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="text-blue-600 hover:text-blue-700"
-                        asChild
-                      >
-                        <Link href={`/admin/members/${member.id}`}>
-                          <Eye className="w-4 h-4 mr-1" />
-                          View
-                        </Link>
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
                         className="text-yellow-600 hover:text-yellow-700"
                         asChild
                       >
-                        <Link href={`/admin/members/${member.id}/edit`}>
+                        <Link href={`/admin/members/update/${member.id}`}>
                           <Edit className="w-4 h-4 mr-1" />
                           Edit
                         </Link>

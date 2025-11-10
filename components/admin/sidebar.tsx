@@ -30,6 +30,9 @@ import {
   ChevronDown,
   ChevronRight,
   Menu,
+  Folders,
+  Hash,
+  MapPin,
 } from "lucide-react";
 
 const menuItems = [
@@ -41,30 +44,25 @@ const menuItems = [
         href: "/admin",
         icon: BarChart3,
       },
-      {
-        title: "Analytics",
-        href: "/admin/analytics",
-        icon: BarChart3,
-      },
     ],
   },
   {
-    title: "👥 MEMBERS",
+    title: "�️ ORGANIZATION",
     items: [
       {
-        title: "All Members",
+        title: "Members",
         href: "/admin/members",
-        icon: Users,
+        icon: User,
       },
       {
-        title: "Registrations",
-        href: "/admin/registrations",
-        icon: UserPlus,
+        title: "Boards",
+        href: "/admin/boards",
+        icon: Folders,
       },
       {
-        title: "Roles & Permissions",
-        href: "/admin/roles",
-        icon: Shield,
+        title: "Blockchain Areas",
+        href: "/admin/blockchain-areas",
+        icon: Hash,
       },
     ],
   },
@@ -77,34 +75,9 @@ const menuItems = [
         icon: Calendar,
       },
       {
-        title: "Create Event",
-        href: "/admin/events/create",
-        icon: Calendar,
-      },
-      {
-        title: "Categories",
-        href: "/admin/events/categories",
-        icon: Calendar,
-      },
-    ],
-  },
-  {
-    title: "📰 CONTENT",
-    items: [
-      {
-        title: "News Articles",
-        href: "/admin/news",
-        icon: Newspaper,
-      },
-      {
-        title: "Media Gallery",
-        href: "/admin/media",
-        icon: Image,
-      },
-      {
-        title: "Pages",
-        href: "/admin/pages",
-        icon: FileText,
+        title: "Registrations",
+        href: "/admin/registrations",
+        icon: UserPlus,
       },
     ],
   },
@@ -116,40 +89,25 @@ const menuItems = [
         href: "/admin/partners",
         icon: Handshake,
       },
-      {
-        title: "Collaborations",
-        href: "/admin/collaborations",
-        icon: Building2,
-      },
     ],
   },
   {
-    title: "👨‍💼 TEAM",
-    items: [
-      {
-        title: "Team Members",
-        href: "/admin/team",
-        icon: Users,
-      },
-      {
-        title: "Achievements",
-        href: "/admin/achievements",
-        icon: Shield,
-      },
-    ],
-  },
-  {
-    title: "📞 COMMUNICATIONS",
+    title: "� CONTACT",
     items: [
       {
         title: "Contact Messages",
         href: "/admin/contacts",
         icon: MessageSquare,
       },
+    ],
+  },
+  {
+    title: "� FILE MANAGEMENT",
+    items: [
       {
-        title: "Notifications",
-        href: "/admin/notifications",
-        icon: Bell,
+        title: "Uploads",
+        href: "/admin/uploads",
+        icon: Image,
       },
     ],
   },
@@ -157,14 +115,14 @@ const menuItems = [
     title: "⚙️ SETTINGS",
     items: [
       {
-        title: "Site Settings",
-        href: "/admin/settings",
-        icon: Settings,
+        title: "Database Config",
+        href: "/admin/config/database",
+        icon: Database,
       },
       {
-        title: "System",
-        href: "/admin/system",
-        icon: Database,
+        title: "System Settings",
+        href: "/admin/settings",
+        icon: Settings,
       },
     ],
   },
@@ -177,12 +135,12 @@ export function AdminSidebar() {
   const { user } = useAppSelector((state) => state.auth);
   const [expandedGroups, setExpandedGroups] = useState<string[]>([
     "📊 DASHBOARD", 
-    "👥 MEMBERS",
+    "👥 USER MANAGEMENT",
+    "�️ ORGANIZATION",
     "🎪 EVENTS",
-    "📰 CONTENT",
     "🤝 PARTNERS",
-    "👨‍💼 TEAM",
-    "📞 COMMUNICATIONS",
+    "� CONTACT",
+    "� FILE MANAGEMENT",
     "⚙️ SETTINGS"
   ]); // All groups expanded by default for collapsed state
   const [isHovered, setIsHovered] = useState(false);

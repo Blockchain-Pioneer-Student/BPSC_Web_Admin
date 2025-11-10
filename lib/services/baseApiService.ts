@@ -1,6 +1,7 @@
 import { store } from '@/lib/store';
 import { logout } from '@/lib/store/authSlice';
 import { API_BASE_URL } from '@/config/enpoints';
+import { tokenRefreshService } from './tokenRefresh';
 
 export interface ApiRequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
@@ -32,7 +33,7 @@ export class BaseApiService {
     return headers;
   }
 
-  private async handleResponse<T>(response: Response): Promise<T> {
+  private async handleResponse<T>(response: Response, url?: string): Promise<T> {
     // Check for new access token in response headers
     const newAccessToken = response.headers.get('X-New-Access-Token');
     if (newAccessToken) {
@@ -42,30 +43,57 @@ export class BaseApiService {
     }
 
     if (!response.ok) {
+      // Read response text once
+      const errorText = await response.text();
+      
       // Handle unauthorized errors
       if (response.status === 401) {
-        const errorText = await response.text();
-        if (errorText.includes('Phiên đăng nhập đã hết hạn') || 
-            errorText.includes('Invalid or expired token')) {
-          console.log('🔐 Session expired, logging out...');
-          
-          // Clear Redux store (user info)
+        console.log('🔐 Unauthorized request - token expired or invalid');
+        
+        // Check if we're trying to refresh token
+        const isRefreshEndpoint = url ? (url.includes('/auth/refresh') || url.includes('/auth/token-status')) : false;
+        
+        if (isRefreshEndpoint || errorText.includes('Phiên đăng nhập đã hết hạn')) {
+          // Only clear state for refresh endpoints or explicit session expiry
+          console.log('🔐 Session expired, clearing user state...');
           store.dispatch(logout());
-          
-          // HTTP-only cookie sẽ được clear bởi server hoặc expire tự nhiên
           
           // Redirect to login page if in browser
           if (typeof window !== 'undefined') {
             window.location.href = '/login';
           }
         }
+        
+        // For other 401 errors, just throw the error and let the component handle it
       }
       
-      const errorText = await response.text();
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
     }
 
-    return await response.json();
+    // Check if response has content
+    const contentLength = response.headers.get('content-length');
+    const contentType = response.headers.get('content-type');
+    
+    // If no content or content-length is 0, return undefined for void responses
+    if (contentLength === '0' || !contentType || !contentType.includes('application/json')) {
+      return undefined as T;
+    }
+
+    // Try to get response text first to check if it's empty
+    const responseText = await response.text();
+    
+    // If response is empty, return undefined
+    if (!responseText) {
+      return undefined as T;
+    }
+
+    // Parse JSON if we have content
+    try {
+      return JSON.parse(responseText);
+    } catch (error) {
+      console.warn('Failed to parse JSON response:', responseText);
+      return undefined as T;
+    }
   }
 
   public async makeRequest<T>(
@@ -108,7 +136,38 @@ export class BaseApiService {
         credentials: 'include', // Important: Include HTTP-only cookies
       });
 
-      return await this.handleResponse<T>(response);
+      // Nếu response OK thì trả về kết quả
+      if (response.ok) {
+        return await this.handleResponse<T>(response, url);
+      }
+
+      // Nếu là 401 và requiresAuth = true, thử refresh token
+      if (response.status === 401 && requiresAuth && !endpoint.includes('/auth/')) {
+        console.log('🔄 Got 401, attempting token refresh...');
+        
+        // Thử refresh token
+        const refreshSuccess = await tokenRefreshService.manualRefresh();
+        
+        if (refreshSuccess) {
+          console.log('✅ Token refreshed, retrying original request...');
+          
+          // Retry original request với token mới
+          const retryResponse = await fetch(url, {
+            method,
+            headers: requestHeaders,
+            body: requestBody,
+            credentials: 'include',
+          });
+          
+          return await this.handleResponse<T>(retryResponse, url);
+        } else {
+          // Refresh thất bại, handle như bình thường
+          return await this.handleResponse<T>(response, url);
+        }
+      } else {
+        // Không phải lỗi auth hoặc không cần auth
+        return await this.handleResponse<T>(response, url);
+      }
     } catch (error) {
       console.error(`API request failed for ${method} ${endpoint}:`, error);
       throw error;

@@ -119,6 +119,15 @@ class RegistrationService extends BaseApiService {
   }
 
   /**
+   * Delete registration by ID (Admin only)
+   */
+  async deleteRegistration(id: number): Promise<{ success: boolean; message: string }> {
+    return this.makeRequest(`/registrations/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  /**
    * Get registrations by blockchain area
    */
   async getRegistrationsByBlockchainArea(areaId: number): Promise<Registration[]> {

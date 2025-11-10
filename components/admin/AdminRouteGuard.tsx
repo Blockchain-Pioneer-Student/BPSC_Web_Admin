@@ -29,8 +29,19 @@ export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
     }
   }, [user, router, isAuthenticated, isAdmin]);
 
-  // Show loading if not authenticated or not admin
-  if (!user || !isAuthenticated() || !isAdmin()) {
+  // Check immediately before rendering to prevent API calls
+  if (!user || !isAuthenticated()) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004987]"></div>
+          <p className="text-gray-600">Đang chuyển hướng đến trang đăng nhập...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin()) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4">

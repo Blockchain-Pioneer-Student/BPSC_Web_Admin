@@ -115,6 +115,20 @@ export default function RegistrationsPage() {
     router.push(`/admin/registrations/${registration.id}`);
   };
 
+  // Handle delete
+  const handleDelete = async (registration: Registration) => {
+    try {
+      await registrationService.deleteRegistration(registration.id);
+      toast.success(`Registration from ${registration.full_name} deleted successfully`);
+      
+      // Refresh data
+      fetchRegistrations();
+    } catch (error) {
+      console.error("Error deleting registration:", error);
+      toast.error("Failed to delete registration");
+    }
+  };
+
   // Clear all filters
   const clearFilters = () => {
     setSearchTerm("");
@@ -241,6 +255,7 @@ export default function RegistrationsPage() {
               <RegistrationTable
                 registrations={currentRegistrations}
                 onViewDetails={handleViewDetails}
+                onDelete={handleDelete}
                 searchTerm={searchTerm}
                 filterByUniversity={filterByUniversity}
                 filterByDivision={filterByDivision}

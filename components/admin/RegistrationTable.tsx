@@ -10,12 +10,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Eye, Trash2 } from "lucide-react";
 import { Registration } from "@/lib/services/registrationService";
 
 interface RegistrationTableProps {
   registrations: Registration[];
   onViewDetails: (registration: Registration) => void;
+  onDelete: (registration: Registration) => void;
   searchTerm: string;
   filterByUniversity: string;
   filterByDivision: string;
@@ -25,6 +37,7 @@ interface RegistrationTableProps {
 export function RegistrationTable({
   registrations,
   onViewDetails,
+  onDelete,
   searchTerm,
   filterByUniversity,
   filterByDivision,
@@ -155,15 +168,49 @@ export function RegistrationTable({
                   {formatDate(registration.created_at)}
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onViewDetails(registration)}
-                    className="hover:bg-[#004987] hover:text-white transition-colors duration-200"
-                  >
-                    <Eye className="h-4 w-4 mr-1" />
-                    View
-                  </Button>
+                  <div className="flex items-center justify-end space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onViewDetails(registration)}
+                      className="hover:bg-[#004987] hover:text-white transition-colors duration-200"
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Button>
+                    
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="hover:bg-red-500 hover:text-white hover:border-red-500 transition-colors duration-200"
+                        >
+                          <Trash2 className="h-4 w-4 mr-1" />
+                          Delete
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Registration</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete the registration from{" "}
+                            <span className="font-semibold">{registration.full_name}</span>{" "}
+                            ({registration.student_id})? This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => onDelete(registration)}
+                            className="bg-red-500 hover:bg-red-600"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </TableCell>
               </TableRow>
             ))
