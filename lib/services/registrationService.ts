@@ -1,5 +1,6 @@
 import { store } from '../store';
-import { updateTokens } from '../store/authSlice';
+import { logout } from '../store/authSlice';
+import { BaseApiService } from './baseApiService';
 import { API_BASE_URL } from '../../config/enpoints';
 
 export interface BlockchainArea {
@@ -59,49 +60,19 @@ export interface RegistrationsListResponse {
   count: number;
 }
 
-class RegistrationService {
-  private baseURL = `${API_BASE_URL}/registrations`;
-
-  private async makeRequest(url: string, options: RequestInit = {}): Promise<any> {
-    const state = store.getState();
-    const token = state.auth.user?.access_token;
-
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...((options.headers || {}) as Record<string, string>),
-    };
-
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
-
-    const response = await fetch(url, {
-      ...options,
-      headers,
-    });
-
-    // Check if we received a new access token in response headers
-    const newAccessToken = response.headers.get('X-New-Access-Token');
-    if (newAccessToken) {
-      console.log('🔄 New access token received, updating Redux store');
-      store.dispatch(updateTokens({ access_token: newAccessToken }));
-    }
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ message: 'Unknown error' }));
-      throw new Error(errorData.message || `HTTP ${response.status}`);
-    }
-
-    return response.json();
+class RegistrationService extends BaseApiService {
+  constructor() {
+    super();
   }
 
   /**
    * Create a new registration (Public endpoint)
    */
   async createRegistration(registrationData: CreateRegistrationDto): Promise<RegistrationResponse> {
-    return this.makeRequest(`${this.baseURL}/create`, {
+    return this.makeRequest('/registrations/create', {
       method: 'POST',
-      body: JSON.stringify(registrationData),
+      body: registrationData,
+      requiresAuth: false,
     });
   }
 
@@ -109,7 +80,7 @@ class RegistrationService {
    * Get all registrations (Admin only)
    */
   async getAllRegistrations(): Promise<RegistrationsListResponse> {
-    return this.makeRequest(`${this.baseURL}/get-all`);
+    return this.makeRequest('/registrations/get-all');
   }
 
   /**

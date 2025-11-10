@@ -1,6 +1,4 @@
-import { API_BASE_URL } from '@/config/enpoints';
-import { store } from '@/lib/store';
-import { updateTokens, logout } from '@/lib/store/authSlice';
+import { BaseApiService } from './baseApiService';
 
 interface MemberRole {
   id: number;
@@ -34,60 +32,9 @@ interface GetAllMembersParams {
   search?: string;
 }
 
-class MemberService {
-  private readonly baseURL: string;
-
+class MemberService extends BaseApiService {
   constructor() {
-    this.baseURL = API_BASE_URL;
-  }
-
-  private async makeRequest(url: string, options: RequestInit = {}): Promise<any> {
-    try {
-      const response = await fetch(url, {
-        ...options,
-        headers: {
-          ...this.getAuthHeaders(),
-          ...options.headers,
-        },
-      });
-
-      // Check for new access token in response headers
-      const newAccessToken = response.headers.get('X-New-Access-Token');
-      if (newAccessToken) {
-        // Update only access token in Redux store
-        store.dispatch(updateTokens({ access_token: newAccessToken }));
-      }
-
-      if (response.status === 401) {
-        // If we get 401, it means refresh also failed (session truly expired)
-        // JWT Guard would have handled refresh automatically if possible
-        store.dispatch(logout());
-        throw new Error('Phiên đăng nhập đã hết hạn');
-      }
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error('Request error:', error);
-      throw error;
-    }
-  }
-
-  private getAuthHeaders(): Record<string, string> {
-    const state = store.getState();
-    const token = state.auth.user?.access_token;
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    return headers;
+    super();
   }
 
   async getAllMembers(params?: GetAllMembersParams): Promise<Member[]> {
@@ -102,49 +49,45 @@ class MemberService {
         queryParams.append('limit', params.limit.toString());
       }
 
-      if (params?.status && params.status.trim() !== '') {
+      if (params?.status) {
         queryParams.append('status', params.status);
       }
 
-      if (params?.search && params.search.trim() !== '') {
+      if (params?.search) {
         queryParams.append('search', params.search);
       }
 
-      const url = `${this.baseURL}/members${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-      
-      return await this.makeRequest(url);
+      const endpoint = `/members${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      return this.makeRequest(endpoint);
     } catch (error) {
-      console.error('Error fetching members:', error);
+      console.error('Error getting all members:', error);
       throw error;
     }
   }
 
   async getAllActiveMembers(): Promise<Member[]> {
     try {
-      const url = `${this.baseURL}/members/get-all-active`;
-      return await this.makeRequest(url);
+      return this.makeRequest('/members/get-all-active');
     } catch (error) {
-      console.error('Error fetching active members:', error);
+      console.error('Error getting active members:', error);
       throw error;
     }
   }
 
   async getMemberById(id: number): Promise<Member> {
     try {
-      const url = `${this.baseURL}/members/${id}`;
-      return await this.makeRequest(url);
+      return this.makeRequest(`/members/${id}`);
     } catch (error) {
-      console.error('Error fetching member by ID:', error);
+      console.error('Error getting member by ID:', error);
       throw error;
     }
   }
 
-  async updateMember(id: number, updateData: Partial<Member>): Promise<Member> {
+  async updateMember(id: number, memberData: Partial<Member>): Promise<Member> {
     try {
-      const url = `${this.baseURL}/members/${id}`;
-      return await this.makeRequest(url, {
+      return this.makeRequest(`/members/${id}`, {
         method: 'PATCH',
-        body: JSON.stringify(updateData),
+        body: memberData,
       });
     } catch (error) {
       console.error('Error updating member:', error);
@@ -152,10 +95,9 @@ class MemberService {
     }
   }
 
-  async deleteMember(id: number): Promise<any> {
+  async deleteMember(id: number): Promise<void> {
     try {
-      const url = `${this.baseURL}/members/${id}`;
-      return await this.makeRequest(url, {
+      await this.makeRequest(`/members/${id}`, {
         method: 'DELETE',
       });
     } catch (error) {
@@ -164,16 +106,16 @@ class MemberService {
     }
   }
 
-  async getAllRoles(): Promise<MemberRole[]> {
+  async getMemberRoles(): Promise<MemberRole[]> {
     try {
-      const url = `${this.baseURL}/members/roles`;
-      return await this.makeRequest(url);
+      return this.makeRequest('/members/roles');
     } catch (error) {
-      console.error('Error fetching roles:', error);
+      console.error('Error getting member roles:', error);
       throw error;
     }
   }
 }
 
 export const memberService = new MemberService();
-export type { Member, GetAllMembersParams, MemberRole };
+export default memberService;
+export type { Member, MemberRole, MemberSocial, GetAllMembersParams };

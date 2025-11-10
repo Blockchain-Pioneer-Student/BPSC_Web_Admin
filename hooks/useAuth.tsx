@@ -20,9 +20,6 @@ export const useAuth = () => {
       // Save to Redux store
       dispatch(login(userData));
       
-      // Save access_token to localStorage
-      localStorage.setItem('access_token', userData.access_token);
-      
       toast.success('Đăng nhập thành công');
       
       return userData;
@@ -35,42 +32,28 @@ export const useAuth = () => {
   }, [dispatch]);
 
   // Logout function
-  const logoutUser = useCallback(() => {
-    dispatch(logout());
-    authService.logout();
-    toast.success('Đã đăng xuất thành công');
-    router.push('/admin/login');
+  const logoutUser = useCallback(async () => {
+    try {
+      dispatch(logout());
+      await authService.logout();
+      toast.success('Đã đăng xuất thành công');
+      router.push('/admin/login');
+    } catch (error) {
+      // Still logout even if server call fails
+      toast.success('Đã đăng xuất thành công');
+      router.push('/admin/login');
+    }
   }, [dispatch, router]);
 
   // Check if user is authenticated
   const isAuthenticated = useCallback(() => {
-    return !!user && !!user.access_token;
+    return !!user && (user.role === 'admin' || user.role === 'root');
   }, [user]);
 
   // Check if user is admin
   const isAdmin = useCallback(() => {
     return user?.role === 'admin';
   }, [user]);
-
-  // Verify token on app initialization
-  const verifyAuth = useCallback(async () => {
-    const token = authService.getStoredToken();
-    
-    if (!token) {
-      dispatch(logout());
-      return false;
-    }
-
-    try {
-      const userData = await authService.verifyToken(token);
-      dispatch(login(userData));
-      return true;
-    } catch (error) {
-      console.error('Token verification failed:', error);
-      dispatch(logout());
-      return false;
-    }
-  }, [dispatch]);
 
   return {
     // State
@@ -81,7 +64,6 @@ export const useAuth = () => {
     // Actions
     loginUser,
     logoutUser,
-    verifyAuth,
     
     // Checks
     isAuthenticated,

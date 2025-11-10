@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { ParticlesBackground } from "@/components/particles-background";
 import { Toaster } from "@/components/ui/sonner";
 import { ReduxProvider } from "@/lib/providers/ReduxProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 import {
   organizationSchema,
   websiteSchema,
@@ -195,21 +196,23 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <ReduxProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
-            disableTransitionOnChange
-            forcedTheme="light"
-          >
-            <div className="relative flex min-h-screen flex-col">
-              <div className="relative">
-                <ParticlesBackground />
+          <AuthProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="light"
+              enableSystem={false}
+              disableTransitionOnChange
+              forcedTheme="light"
+            >
+              <div className="relative flex min-h-screen flex-col">
+                <div className="relative">
+                  <ParticlesBackground />
+                </div>
+                <main className="flex-1">{children}</main>
               </div>
-              <main className="flex-1">{children}</main>
-            </div>
-            <Toaster />
-          </ThemeProvider>
+              <Toaster />
+            </ThemeProvider>
+          </AuthProvider>
         </ReduxProvider>
       </body>
     </html>

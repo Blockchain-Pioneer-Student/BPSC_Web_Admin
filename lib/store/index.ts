@@ -4,11 +4,11 @@ import storage from 'redux-persist/lib/storage'; // localStorage
 import authReducer from './authSlice';
 import { RootState } from './types';
 
-// Persist config
+// Persist config - chỉ lưu user info, không lưu access_token  
 const persistConfig = {
   key: 'user-storage',
   storage,
-  whitelist: ['user'], // Only persist user data, not isAuthenticated
+  whitelist: ['user'], // Persist user data only
 };
 
 // Persisted reducer

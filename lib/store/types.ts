@@ -1,7 +1,6 @@
-// Types for User
+// Types for User (không bao gồm access_token - token lưu trong cookie)
 export interface User {
   id: number;
-  access_token: string;
   avatar_url: string;
   email: string;
   is_verified: boolean;

@@ -11,40 +11,31 @@ interface AdminRouteGuardProps {
 
 export function AdminRouteGuard({ children }: AdminRouteGuardProps) {
   const router = useRouter();
-  const { user, isAuthenticated, isAdmin, verifyAuth } = useAuth();
+  const { user, isAuthenticated, isAdmin } = useAuth();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      // Check if user is logged in
-      if (!user) {
-        // Try to verify token from localStorage
-        const isValid = await verifyAuth();
-        
-        if (!isValid) {
-          toast.error('You need to login to access this page');
-          router.push('/login');
-          return;
-        }
-      }
+    // Check if user is not logged in
+    if (!user || !isAuthenticated()) {
+      toast.error('Bạn cần đăng nhập để truy cập trang này');
+      router.push('/login');
+      return;
+    }
 
-      // Check admin permissions
-      if (user && !isAdmin()) {
-        toast.error('You do not have permission to access admin panel');
-        router.push('/');
-        return;
-      }
-    };
+    // Check admin permissions
+    if (!isAdmin()) {
+      toast.error('Bạn không có quyền truy cập trang admin');
+      router.push('/');
+      return;
+    }
+  }, [user, router, isAuthenticated, isAdmin]);
 
-    checkAuth();
-  }, [user, router, isAdmin, verifyAuth]);
-
-  // Show loading if verification is not complete
+  // Show loading if not authenticated or not admin
   if (!user || !isAuthenticated() || !isAdmin()) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="flex flex-col items-center gap-4">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#004987]"></div>
-          <p className="text-gray-600">Verifying access permissions...</p>
+          <p className="text-gray-600">Đang kiểm tra quyền truy cập...</p>
         </div>
       </div>
     );

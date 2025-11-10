@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '@/config/enpoints';
+import { BaseApiService } from './baseApiService';
 
 export interface LoginCredentials {
   identifier: string;
@@ -20,7 +21,6 @@ export interface LoginResponse {
 
 export interface AuthUser {
   id: number;
-  access_token: string;
   avatar_url: string;
   email: string;
   is_verified: boolean;
@@ -28,45 +28,34 @@ export interface AuthUser {
   username: string;
 }
 
-class AuthService {
-  private readonly baseURL: string;
-
+class AuthService extends BaseApiService {
   constructor() {
-    this.baseURL = API_BASE_URL;
+    super();
   }
 
   async login(credentials: LoginCredentials): Promise<AuthUser> {
     try {
-      const response = await fetch(`${this.baseURL}/auth/login`, {
+      // Use makeRequest with credentials include để server có thể set HTTP-only cookie
+      const response = await this.makeRequest<{ user: AuthUser; expires_in: number }>('/auth/login', {
         method: 'POST',
+        body: credentials,
+        requiresAuth: false,
         headers: {
-          'Content-Type': 'application/json',
           'User-Agent': navigator.userAgent || 'BPSClub-Web-Client/1.0',
-        },
-        body: JSON.stringify(credentials),
+        }
       });
 
-      const data: LoginResponse = await response.json();
-
-      if (!response.ok) {
-        throw new Error('Đăng nhập thất bại');
-      }
-
-      if (!data.user) {
+      if (!response.user) {
         throw new Error('Đăng nhập thất bại');
       }
 
       // Kiểm tra quyền admin hoặc root
-      if (data.user.role !== 'admin' && data.user.role !== 'root') {
+      if (response.user.role !== 'admin' && response.user.role !== 'root') {
         throw new Error('Bạn không có quyền truy cập trang admin');
       }
 
-      // Trả về user với access_token
-      return {
-        ...data.user,
-        access_token: data.access_token,
-        avatar_url: '', // Backend không trả về avatar_url, set default
-      };
+      // Trả về user info (tokens đã được set vào HTTP-only cookies tự động bởi backend)
+      return response.user;
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -75,27 +64,22 @@ class AuthService {
 
   async verifyToken(token: string): Promise<AuthUser> {
     try {
-      const response = await fetch(`${this.baseURL}/auth/verify`, {
+      // Manually set Authorization header since this is for token verification
+      const response = await this.makeRequest<any>('/auth/verify', {
         method: 'GET',
+        requiresAuth: false, // Don't use automatic auth headers
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
           'User-Agent': navigator.userAgent || 'BPSClub-Web-Client/1.0',
-        },
+        }
       });
-
-      if (!response.ok) {
-        throw new Error('Token không hợp lệ');
-      }
-
-      const data = await response.json();
       
-      if (!data.user) {
+      if (!response.user) {
         throw new Error('Token không hợp lệ');
       }
 
       return {
-        ...data.user,
+        ...response.user,
         access_token: token,
         avatar_url: '', // Default value
       };
@@ -105,19 +89,18 @@ class AuthService {
     }
   }
 
-  logout(): void {
-    // Clear localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('user');
-      localStorage.removeItem('access_token');
+  async logout(): Promise<void> {
+    try {
+      // Clear HTTP-only cookies on the server
+      await this.makeRequest('/auth/clear-cookie', {
+        method: 'POST',
+        requiresAuth: false,
+      });
+      console.log('🔐 Logout: Server cookies cleared successfully');
+    } catch (error) {
+      // Even if server call fails, we should still clear local state
+      console.warn('Failed to clear server cookies:', error);
     }
-  }
-
-  getStoredToken(): string | null {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('access_token');
-    }
-    return null;
   }
 }
 

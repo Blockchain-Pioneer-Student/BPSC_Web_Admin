@@ -1,6 +1,7 @@
 import { API_BASE_URL } from '@/config/enpoints';
 import { CreateEventData } from '@/common/interfaces/createEvent';
-import { store } from '@/lib/store';
+import { BaseApiService } from './baseApiService';
+
 interface EventCategory {
   id: number;
   name: string;
@@ -57,37 +58,9 @@ interface GetAllEventsParams {
   search?: string;
 }
 
-class EventService {
-  private readonly baseURL: string;
-
+class EventService extends BaseApiService {
   constructor() {
-    this.baseURL = API_BASE_URL;
-  }
-
-  private getAuthHeaders(): Record<string, string> {
-    const state = store.getState();
-    const token = state.auth.user?.access_token;
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    return headers;
-  }
-
-  private getAuthHeadersForFormData(): Record<string, string> {
-    const state = store.getState();
-    const token = state.auth.user?.access_token;
-    const headers: Record<string, string> = {};
-    
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
-    }
-    
-    return headers;
+    super();
   }
 
   async getAllEvents(params?: GetAllEventsParams): Promise<Event[]> {
@@ -110,21 +83,8 @@ class EventService {
         queryParams.append('search', params.search);
       }
 
-      const url = `${this.baseURL}/events/get-all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: Event[] = await response.json();
-      return data;
+      const endpoint = `/events/get-all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      return await this.get<Event[]>(endpoint, false); // Public endpoint
     } catch (error) {
       console.error('Error fetching events:', error);
       throw error;
@@ -133,21 +93,7 @@ class EventService {
 
   async getEventByUuid(uuid: string): Promise<Event> {
     try {
-      const url = `${this.baseURL}/events/uuid/${uuid}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: Event = await response.json();
-      return data;
+      return await this.get<Event>(`/events/uuid/${uuid}`, false); // Public endpoint
     } catch (error) {
       console.error('Error fetching event by UUID:', error);
       throw error;
@@ -156,21 +102,7 @@ class EventService {
 
   async getEventById(id: number): Promise<Event> {
     try {
-      const url = `${this.baseURL}/events/${id}`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: Event = await response.json();
-      return data;
+      return await this.get<Event>(`/events/${id}`, false); // Public endpoint
     } catch (error) {
       console.error('Error fetching event:', error);
       throw error;
@@ -179,21 +111,7 @@ class EventService {
 
   async getAllCategories(): Promise<EventCategory[]> {
     try {
-      const url = `${this.baseURL}/events/categories`;
-
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: EventCategory[] = await response.json();
-      return data;
+      return await this.get<EventCategory[]>('/events/categories', false); // Public endpoint
     } catch (error) {
       console.error('Error fetching categories:', error);
       throw error;
@@ -202,8 +120,6 @@ class EventService {
 
   async createEvent(eventData: CreateEventData): Promise<Event> {
     try {
-      const url = `${this.baseURL}/events/create`;
-
       const formData = new FormData();
 
       // Append all fields to the form data
@@ -232,18 +148,7 @@ class EventService {
         formData.append('image_file', eventData.image_file);
       }
 
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: this.getAuthHeadersForFormData(),
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data: Event = await response.json();
-      return data;
+      return await this.post<Event>('/events/create', formData, true);
     } catch (error) {
       console.error('Error creating event:', error);
       throw error;
@@ -252,8 +157,6 @@ class EventService {
 
   async updateEvent(uuid: string, updateData: Partial<Event & { image_file?: File }>): Promise<Event> {
     try {
-      const url = `${this.baseURL}/events/update/${uuid}`;
-
       const formData = new FormData();
 
       // Only append fields that are provided (changed fields)
@@ -300,18 +203,7 @@ class EventService {
         formData.append('image_file', updateData.image_file);
       }
 
-      const response = await fetch(url, {
-        method: 'PATCH',
-        headers: this.getAuthHeadersForFormData(),
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const result = await response.json();
+      const result = await this.patch<any>(`/events/update/${uuid}`, formData, true);
       return result.data || result;
     } catch (error) {
       console.error('Error updating event:', error);
@@ -321,20 +213,7 @@ class EventService {
 
   async deleteEvent(uuid: string): Promise<any> {
     try {
-      const url = `${API_BASE_URL}/events/uuid/${uuid}`;
-
-      const response = await fetch(url, {
-        method: 'DELETE',
-        headers: this.getAuthHeaders(),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
-      }
-
-      const result = await response.json();
-      return result;
+      return await this.delete<any>(`/events/uuid/${uuid}`, true);
     } catch (error) {
       console.error('Error deleting event:', error);
       throw error;

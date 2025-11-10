@@ -29,11 +29,13 @@ import {
   AlignLeft,
   AlignCenter,
   AlignRight,
+  AlignJustify,
   Palette,
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  Settings
+  Settings,
+  Images
 } from 'lucide-react'
 
 interface RichTextEditorProps {
@@ -139,11 +141,13 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          class: 'text-blue-500 hover:text-blue-700 underline',
+          class: 'text-blue-500 hover:text-blue-700 hover:underline',
         },
       }),
       TextAlign.configure({
         types: ['heading', 'paragraph'],
+        alignments: ['left', 'center', 'right', 'justify'],
+        defaultAlignment: 'justify',
       }),
       Color.configure({
         types: ['textStyle'],
@@ -167,7 +171,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
     },
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[300px] p-4',
+        class: 'focus:outline-none p-4 text-justify w-full',
       },
     },
   });
@@ -235,6 +239,65 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       } catch (error) {
         console.error('Upload failed:', error);
         alert('Failed to upload image');
+      } finally {
+        setIsUploading(false);
+      }
+    };
+    input.click();
+  };
+
+  // Handle multiple image upload for gallery
+  const handleMultipleImageUpload = async () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true; // Allow multiple selection
+    input.onchange = async (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (!files || files.length === 0) return;
+
+      // Validate each file size (5MB max)
+      for (const file of Array.from(files)) {
+        if (file.size > 5 * 1024 * 1024) {
+          alert(`File ${file.name} size must be less than 5MB`);
+          return;
+        }
+      }
+
+      setIsUploading(true);
+      try {
+        // Upload all files simultaneously
+        const uploadPromises = Array.from(files).map(file => UploadService.uploadImage(file));
+        const results = await Promise.all(uploadPromises);
+
+        // Create gallery HTML with flexbox
+        let galleryHtml = '<div style="display: flex; gap: 8px; flex-wrap: wrap; margin: 16px 0; justify-content: flex-start;">';
+        
+        results.forEach((result, index) => {
+          galleryHtml += `<div style="flex: 0 0 auto;">
+            <img src="${result.url}" alt="${files[index].name}" title="${files[index].name}" 
+                 style="width: 200px; height: 150px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" 
+                 class="hover:scale-105 transition-transform cursor-pointer" />
+          </div>`;
+        });
+        
+        galleryHtml += '</div>';
+
+        // Insert gallery at the end of the document
+        if (editor) {
+          const { state } = editor;
+          const { doc } = state;
+          const endPos = doc.content.size;
+          
+          editor.chain()
+            .focus()
+            .setTextSelection(endPos)
+            .insertContent(galleryHtml)
+            .run();
+        }
+      } catch (error) {
+        console.error('Multiple upload failed:', error);
+        alert('Failed to upload images');
       } finally {
         setIsUploading(false);
       }
@@ -377,6 +440,20 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
     editor.chain().focus().unsetLink().run();
   };
 
+  const alignImage = (alignment: 'left' | 'center' | 'right') => {
+    if (!editor) return;
+    
+    const { state } = editor;
+    const { selection } = state;
+    
+    const node = state.doc.nodeAt(selection.from);
+    if (node && node.type.name === 'customImage') {
+      editor.chain().focus().updateAttributes('customImage', { 
+        alignment: alignment 
+      }).run();
+    }
+  };
+
   if (!mounted || !editor) {
     return (
       <div className="border rounded-lg h-96 flex items-center justify-center bg-gray-50">
@@ -459,6 +536,12 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         .ProseMirror {
           scrollbar-width: thin;
           scrollbar-color: #cbd5e1 #f1f5f9;
+          font-size: 14px !important;
+          line-height: 1.6 !important;
+          min-height: 100% !important;
+          padding: 1rem !important;
+          width: 100% !important;
+          max-width: none !important;
         }
         
         .ProseMirror::-webkit-scrollbar {
@@ -477,6 +560,79 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         
         .ProseMirror::-webkit-scrollbar-thumb:hover {
           background: #94a3b8;
+        }
+        
+        /* Remove prose constraints and style content directly */
+        .ProseMirror * {
+          max-width: none !important;
+        }
+        
+        .ProseMirror h1 {
+          font-size: 1.5rem !important;
+          line-height: 1.4 !important;
+          font-weight: 600 !important;
+          margin: 1rem 0 0.5rem 0 !important;
+        }
+        
+        .ProseMirror h2 {
+          font-size: 1.25rem !important;
+          line-height: 1.4 !important;
+          font-weight: 600 !important;
+          margin: 0.75rem 0 0.5rem 0 !important;
+        }
+        
+        .ProseMirror h3 {
+          font-size: 1.125rem !important;
+          line-height: 1.4 !important;
+          font-weight: 600 !important;
+          margin: 0.75rem 0 0.5rem 0 !important;
+        }
+        
+        .ProseMirror p {
+          margin: 0.5rem 0 !important;
+          text-align: justify !important;
+          font-size: 14px !important;
+          line-height: 1.6 !important;
+        }
+        
+        .ProseMirror ul, .ProseMirror ol {
+          margin: 0.5rem 0 !important;
+          padding-left: 1.5rem !important;
+        }
+        
+        .ProseMirror ul li {
+          list-style-type: disc !important;
+          margin: 0.25rem 0 !important;
+        }
+        
+        .ProseMirror ol li {
+          list-style-type: decimal !important;
+          margin: 0.25rem 0 !important;
+        }
+        
+        .ProseMirror blockquote {
+          font-size: 14px !important;
+          margin: 0.75rem 0 !important;
+          padding: 0.5rem 1rem !important;
+          border-left: 4px solid #e5e7eb !important;
+          background-color: #f9fafb !important;
+          font-style: italic !important;
+        }
+        
+        /* Link styles */
+        .ProseMirror a {
+          color: #3b82f6 !important;
+          text-decoration: none !important;
+        }
+        
+        .ProseMirror a:hover {
+          color: #1d4ed8 !important;
+          text-decoration: underline !important;
+        }
+        
+        /* Remove any max-width constraints */
+        .prose {
+          max-width: none !important;
         }
       `}</style>
       
@@ -594,6 +750,15 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         >
           <AlignRight className="w-4 h-4" />
         </button>
+        <button
+          onClick={() => editor.chain().focus().setTextAlign('justify').run()}
+          className={`p-2 rounded hover:bg-gray-100 ${
+            editor.isActive({ textAlign: 'justify' }) || (!editor.isActive({ textAlign: 'left' }) && !editor.isActive({ textAlign: 'center' }) && !editor.isActive({ textAlign: 'right' })) ? 'bg-gray-200' : ''
+          }`}
+          title="Justify"
+        >
+          <AlignJustify className="w-4 h-4" />
+        </button>
 
         <div className="w-px h-6 bg-gray-300 mx-1"></div>
 
@@ -642,6 +807,16 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
           <ImageIcon className="w-4 h-4" />
         </button>
 
+        {/* Multiple Images Upload */}
+        <button
+          onClick={handleMultipleImageUpload}
+          disabled={isUploading}
+          className="p-2 rounded hover:bg-gray-100 disabled:opacity-50"
+          title="Upload Multiple Images"
+        >
+          <Images className="w-4 h-4" />
+        </button>
+
         <div className="w-px h-6 bg-gray-300 mx-1"></div>
 
         {/* Image Resize Controls */}
@@ -673,6 +848,31 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
         >
           <Settings className="w-4 h-4" />
         </button>
+
+        <div className="w-px h-6 bg-gray-300 mx-1"></div>
+
+        {/* Image Alignment Controls */}
+        <button
+          onClick={() => alignImage('left')}
+          className="p-2 rounded hover:bg-gray-100"
+          title="Căn ảnh trái"
+        >
+          <AlignLeft className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => alignImage('center')}
+          className="p-2 rounded hover:bg-gray-100"
+          title="Căn ảnh giữa"
+        >
+          <AlignCenter className="w-4 h-4" />
+        </button>
+        <button
+          onClick={() => alignImage('right')}
+          className="p-2 rounded hover:bg-gray-100"
+          title="Căn ảnh phải"
+        >
+          <AlignRight className="w-4 h-4" />
+        </button>
         
         {/* Image Size Display */}
         {selectedImageSize && (
@@ -685,7 +885,7 @@ export default function RichTextEditor({ value, onChange, placeholder }: RichTex
       {/* Editor Content */}
       <EditorContent 
         editor={editor} 
-        className="min-h-[300px]"
+        className="h-80 overflow-y-auto"
         placeholder={placeholder || "Nhập nội dung..."}
       />
 
