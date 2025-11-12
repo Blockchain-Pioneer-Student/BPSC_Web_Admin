@@ -1,162 +1,134 @@
-// services/tokenRefresh.ts
+// services/tokenRefresh.ts - SIMPLE MANUAL REFRESH ONLY
 import { API_BASE_URL } from '@/config/enpoints';
+import { store } from '@/lib/store';
+import { logout } from '@/lib/store/authSlice';
 
 class TokenRefreshService {
-  private refreshTimer: NodeJS.Timeout | null = null;
   private isRefreshing = false;
   private refreshPromise: Promise<boolean> | null = null;
 
-  // Bắt đầu theo dõi và tự động refresh token
-  startAutoRefresh() {
-    this.scheduleNextCheck();
-  }
-
-  // Dừng auto refresh
-  stopAutoRefresh() {
-    if (this.refreshTimer) {
-      clearTimeout(this.refreshTimer);
-      this.refreshTimer = null;
-    }
-  }
-
-  // Lên lịch kiểm tra token tiếp theo
-  private scheduleNextCheck() {
-    // Kiểm tra token status mỗi 10 giây cho access token 1 phút
-    this.refreshTimer = setTimeout(async () => {
-      try {
-        await this.checkAndRefreshToken();
-      } catch (error) {
-        console.error('Error checking token:', error);
-      }
-      // Lên lịch kiểm tra tiếp theo
-      this.scheduleNextCheck();
-    }, 10 * 1000); // 10 giây
-  }
-
-  // Kiểm tra và refresh token nếu cần
-  private async checkAndRefreshToken(): Promise<boolean> {
+  /**
+   * 🔄 MANUAL REFRESH - Called by interceptor when 401 error occurs
+   */
+  async manualRefresh(): Promise<boolean> {
     try {
-      // Nếu đang refresh thì đợi
+      console.log('🔄 Manual token refresh requested...');
+      
+      // Tránh multiple refresh cùng lúc
       if (this.isRefreshing && this.refreshPromise) {
+        console.log('⏳ Already refreshing, waiting...');
         return await this.refreshPromise;
       }
 
-      const response = await fetch(`${API_BASE_URL}/auth/token-status`, {
-        method: 'GET',
-        credentials: 'include', // Để gửi cookies
-      });
+      this.isRefreshing = true;
+      this.refreshPromise = this.doRefreshToken();
 
-      if (!response.ok) {
-        throw new Error('Failed to check token status');
+      try {
+        const result = await this.refreshPromise;
+        console.log(result ? '✅ Manual refresh successful' : '❌ Manual refresh failed');
+        return result;
+      } finally {
+        this.isRefreshing = false;
+        this.refreshPromise = null;
       }
-
-      const tokenStatus = await response.json();
-
-      // Nếu không có token hoặc không hợp lệ
-      if (!tokenStatus.hasToken || !tokenStatus.isValid) {
-        this.handleTokenExpired();
-        return false;
-      }
-
-      // Nếu cần refresh token (còn ít hơn 5 phút)
-      if (tokenStatus.shouldRefresh) {
-        console.log(`Token will expire in ${Math.floor(tokenStatus.timeUntilExpiry / 60)} minutes, refreshing...`);
-        return await this.refreshToken();
-      }
-
-      return true;
     } catch (error) {
-      console.error('Error checking token status:', error);
+      console.error('❌ Manual refresh error:', error);
       return false;
     }
   }
 
-  // Refresh token
-  private async refreshToken(): Promise<boolean> {
-    // Tránh multiple refresh cùng lúc
-    if (this.isRefreshing && this.refreshPromise) {
-      return await this.refreshPromise;
-    }
-
-    this.isRefreshing = true;
-    this.refreshPromise = this.doRefreshToken();
-
-    try {
-      const result = await this.refreshPromise;
-      return result;
-    } finally {
-      this.isRefreshing = false;
-      this.refreshPromise = null;
-    }
-  }
-
+  /**
+   * 🚀 Execute refresh token request
+   */
   private async doRefreshToken(): Promise<boolean> {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
-        credentials: 'include', // Để gửi cookies
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Refresh token failed');
-      }
-
-      const result = await response.json();
-
-      if (result.success) {
-        console.log('Token refreshed successfully');
-        return true;
+      if (response.ok) {
+        const result = await response.json();
+        
+        if (result.success) {
+          console.log('✅ Token refreshed successfully');
+          return true;
+        } else {
+          console.log('❌ Refresh failed - invalid response');
+          this.handleRefreshFailure('Invalid refresh response');
+          return false;
+        }
       } else {
-        throw new Error(result.message || 'Token refresh failed');
+        console.log(`❌ Refresh failed - HTTP ${response.status}`);
+        if (response.status === 401) {
+          this.handleRefreshFailure('Refresh token expired');
+        } else {
+          this.handleRefreshFailure(`HTTP ${response.status}`);
+        }
+        return false;
       }
     } catch (error) {
-      console.error('Error refreshing token:', error);
-      this.handleTokenExpired();
+      console.error('❌ Network error during refresh:', error);
+      this.handleRefreshFailure('Network error');
       return false;
     }
   }
 
-  // Xử lý khi token hết hạn
-  private handleTokenExpired() {
-    console.log('Token expired, redirecting to login...');
+  /**
+   * 🔐 Handle refresh failure - logout user
+   */
+  private handleRefreshFailure(reason: string) {
+    console.log(`🔐 Refresh failed: ${reason}, logging out...`);
     
-    // Dừng auto refresh
-    this.stopAutoRefresh();
+    // 1️⃣ CLEAR REDUX STATE
+    store.dispatch(logout());
     
-    // Xóa cookies (nếu cần)
+    // 2️⃣ CLEAR COOKIES
     this.clearTokens();
     
-    // Redirect về login page
+    // 3️⃣ REDIRECT TO LOGIN (only if not already there)
     if (typeof window !== 'undefined') {
-      // Kiểm tra nếu không phải đang ở login page
       if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+        console.log('🔄 Redirecting to login page...');
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 500);
       }
     }
   }
 
+  /**
+   * 🧹 Clear cookies on server
+   */
   private async clearTokens() {
     try {
       await fetch(`${API_BASE_URL}/auth/clear-cookie`, {
         method: 'POST',
         credentials: 'include',
       });
+      console.log('🧹 Cookies cleared');
     } catch (error) {
-      console.error('Error clearing tokens:', error);
+      console.error('❌ Error clearing tokens:', error);
     }
   }
 
-  // Method để manual refresh (sử dụng khi cần thiết)
-  async manualRefresh(): Promise<boolean> {
-    return await this.refreshToken();
-  }
-
-  // Kiểm tra xem có đang refresh không
+  /**
+   * 🔍 Check if currently refreshing
+   */
   get isCurrentlyRefreshing(): boolean {
     return this.isRefreshing;
+  }
+
+  /**
+   * 🛑 Reset refresh state (for cleanup)
+   */
+  reset() {
+    this.isRefreshing = false;
+    this.refreshPromise = null;
+    console.log('🛑 Token refresh service reset');
   }
 }
 

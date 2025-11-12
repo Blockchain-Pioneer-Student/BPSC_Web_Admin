@@ -2,6 +2,7 @@ import { store } from '@/lib/store';
 import { logout } from '@/lib/store/authSlice';
 import { API_BASE_URL } from '@/config/enpoints';
 import { tokenRefreshService } from './tokenRefresh';
+import { notificationService } from './notificationService';
 
 export interface ApiRequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
@@ -37,8 +38,6 @@ export class BaseApiService {
     // Check for new access token in response headers
     const newAccessToken = response.headers.get('X-New-Access-Token');
     if (newAccessToken) {
-      // Token refresh sẽ được handle bởi server via Set-Cookie header
-      // Client không cần làm gì cả, cookie sẽ được update tự động
       console.log('🔄 Access token refreshed automatically via HTTP-only cookie');
     }
 
@@ -48,23 +47,13 @@ export class BaseApiService {
       
       // Handle unauthorized errors
       if (response.status === 401) {
-        console.log('🔐 Unauthorized request - token expired or invalid');
+        console.log('🔐 Got 401 Unauthorized');
         
-        // Check if we're trying to refresh token
-        const isRefreshEndpoint = url ? (url.includes('/auth/refresh') || url.includes('/auth/token-status')) : false;
-        
-        if (isRefreshEndpoint || errorText.includes('Phiên đăng nhập đã hết hạn')) {
-          // Only clear state for refresh endpoints or explicit session expiry
-          console.log('🔐 Session expired, clearing user state...');
-          store.dispatch(logout());
-          
-          // Redirect to login page if in browser
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
-          }
-        }
-        
-        // For other 401 errors, just throw the error and let the component handle it
+        // Always throw for 401 to be handled by interceptor logic
+        const error = new Error(errorText || 'Unauthorized');
+        (error as any).status = 401;
+        (error as any).url = url;
+        throw error;
       }
       
       throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
@@ -128,49 +117,124 @@ export class BaseApiService {
     const requestBody = body instanceof FormData ? body : 
                        body ? JSON.stringify(body) : undefined;
 
+    // 🔄 INTERCEPTOR: AUTO RETRY LOGIC WITH REFRESH TOKEN
+    return await this.executeRequestWithRetry({
+      url,
+      method,
+      headers: requestHeaders,
+      body: requestBody,
+      endpoint,
+      requiresAuth,
+      retryCount: 0,
+      maxRetries: 1 // Chỉ retry 1 lần
+    });
+  }
+
+  /**
+   * 🚀 INTERCEPTOR: Execute request with automatic 401 retry logic
+   */
+  private async executeRequestWithRetry<T>(params: {
+    url: string;
+    method: string;
+    headers: Record<string, string>;
+    body?: BodyInit;
+    endpoint: string;
+    requiresAuth: boolean;
+    retryCount: number;
+    maxRetries: number;
+  }): Promise<T> {
     try {
-      const response = await fetch(url, {
-        method,
-        headers: requestHeaders,
-        body: requestBody,
+      console.log(`🚀 Making request: ${params.method} ${params.endpoint} (attempt ${params.retryCount + 1})`);
+
+      const response = await fetch(params.url, {
+        method: params.method,
+        headers: params.headers,
+        body: params.body,
         credentials: 'include', // Important: Include HTTP-only cookies
       });
 
-      // Nếu response OK thì trả về kết quả
-      if (response.ok) {
-        return await this.handleResponse<T>(response, url);
-      }
+      return await this.handleResponse<T>(response, params.url);
 
-      // Nếu là 401 và requiresAuth = true, thử refresh token
-      if (response.status === 401 && requiresAuth && !endpoint.includes('/auth/')) {
-        console.log('🔄 Got 401, attempting token refresh...');
-        
-        // Thử refresh token
-        const refreshSuccess = await tokenRefreshService.manualRefresh();
-        
-        if (refreshSuccess) {
-          console.log('✅ Token refreshed, retrying original request...');
-          
-          // Retry original request với token mới
-          const retryResponse = await fetch(url, {
-            method,
-            headers: requestHeaders,
-            body: requestBody,
-            credentials: 'include',
-          });
-          
-          return await this.handleResponse<T>(retryResponse, url);
+    } catch (error: any) {
+      // 🔍 CHECK IF IT'S A 401 ERROR
+      if (error.status === 401 && params.requiresAuth) {
+        console.log(`⚠️ Got 401 Unauthorized on ${params.endpoint}`);
+
+        // 🚫 DON'T RETRY AUTH ENDPOINTS
+        const isAuthEndpoint = params.endpoint.includes('/auth/');
+        if (isAuthEndpoint) {
+          console.log('� Auth endpoint failed, not retrying');
+          this.handleAuthenticationFailure(error.message || 'Authentication failed');
+          throw error;
+        }
+
+        // 🔄 RETRY LOGIC
+        if (params.retryCount < params.maxRetries) {
+          console.log(`🔄 Attempting to refresh token... (retry ${params.retryCount + 1}/${params.maxRetries + 1})`);
+
+          try {
+            // 1️⃣ ATTEMPT TOKEN REFRESH
+            const refreshSuccess = await tokenRefreshService.manualRefresh();
+
+            if (refreshSuccess) {
+              console.log('✅ Token refreshed successfully, retrying original request...');
+              
+              // Show success notification
+              notificationService.info('Token làm mới thành công', 'Đang thử lại yêu cầu...');
+
+              // 2️⃣ RETRY ORIGINAL REQUEST
+              return await this.executeRequestWithRetry<T>({
+                ...params,
+                retryCount: params.retryCount + 1
+              });
+            } else {
+              // 3️⃣ REFRESH FAILED
+              console.log('❌ Token refresh failed');
+              this.handleAuthenticationFailure('Không thể làm mới token');
+              throw error;
+            }
+          } catch (refreshError) {
+            // 4️⃣ REFRESH ERROR
+            console.log('❌ Error during token refresh:', refreshError);
+            this.handleAuthenticationFailure('Lỗi khi làm mới phiên đăng nhập');
+            throw error;
+          }
         } else {
-          // Refresh thất bại, handle như bình thường
-          return await this.handleResponse<T>(response, url);
+          // 5️⃣ MAX RETRIES EXCEEDED
+          console.log('❌ Max retries exceeded for 401 error');
+          this.handleAuthenticationFailure('Xác thực thất bại sau khi thử lại');
+          throw error;
         }
       } else {
-        // Không phải lỗi auth hoặc không cần auth
-        return await this.handleResponse<T>(response, url);
+        // 6️⃣ NOT A 401 ERROR OR NOT AUTH REQUIRED
+        throw error;
       }
-    } catch (error) {
-      console.error(`API request failed for ${method} ${endpoint}:`, error);
-      throw error;
+    }
+  }
+
+  /**
+   * 🔐 Handle authentication failure - logout and redirect
+   */
+  private handleAuthenticationFailure(message: string): void {
+    console.log(`🔐 Authentication failure: ${message}`);
+    
+    // 1️⃣ CLEAR USER STATE
+    store.dispatch(logout());
+    
+    // 2️⃣ RESET TOKEN REFRESH SERVICE
+    tokenRefreshService.reset();
+    
+    // 3️⃣ SHOW TOAST NOTIFICATION
+    notificationService.authFailure(message);
+    
+    // 4️⃣ REDIRECT TO LOGIN (with delay)
+    if (typeof window !== 'undefined') {
+      setTimeout(() => {
+        // Only redirect if not already on login page
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+      }, 2000); // 2 second delay để user đọc toast
     }
   }
 

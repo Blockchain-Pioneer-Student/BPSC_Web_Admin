@@ -11,21 +11,12 @@ export const useAuth = () => {
   const router = useRouter();
   const { user, isLoading, error } = useAppSelector((state) => state.auth);
 
-  // Setup auto refresh token khi hook được mount
+  // NO AUTO REFRESH - Only manual refresh via interceptor
   useEffect(() => {
-    // Chỉ bắt đầu auto refresh nếu user đã đăng nhập
-    if (user && (user.role === 'admin' || user.role === 'root')) {
-      console.log('Starting token auto refresh service');
-      tokenRefreshService.startAutoRefresh();
-    } else {
-      // Dừng auto refresh nếu user chưa đăng nhập hoặc logout
-      tokenRefreshService.stopAutoRefresh();
+    // Reset refresh service khi user state thay đổi
+    if (!user) {
+      tokenRefreshService.reset();
     }
-
-    // Cleanup khi component unmount
-    return () => {
-      tokenRefreshService.stopAutoRefresh();
-    };
   }, [user]);
 
   // Login function
@@ -40,9 +31,8 @@ export const useAuth = () => {
       
       toast.success('Đăng nhập thành công');
       
-      // Bắt đầu auto refresh sau khi login thành công
-      console.log('Login successful, starting token auto refresh');
-      tokenRefreshService.startAutoRefresh();
+      // NO AUTO REFRESH - chỉ dùng interceptor manual refresh
+      console.log('Login successful');
       
       return userData;
     } catch (error) {
@@ -56,8 +46,8 @@ export const useAuth = () => {
   // Logout function
   const logoutUser = useCallback(async () => {
     try {
-      // Dừng auto refresh trước khi logout
-      tokenRefreshService.stopAutoRefresh();
+      // Reset refresh service khi logout
+      tokenRefreshService.reset();
       
       dispatch(logout());
       await authService.logout();
@@ -65,7 +55,7 @@ export const useAuth = () => {
       router.push('/admin/login');
     } catch (error) {
       // Still logout even if server call fails
-      tokenRefreshService.stopAutoRefresh();
+      tokenRefreshService.reset();
       toast.success('Đã đăng xuất thành công');
       router.push('/admin/login');
     }
