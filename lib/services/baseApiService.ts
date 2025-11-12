@@ -153,7 +153,9 @@ export class BaseApiService {
         credentials: 'include', // Important: Include HTTP-only cookies
       });
 
-      return await this.handleResponse<T>(response, params.url);
+      const result = await this.handleResponse<T>(response, params.url);
+      console.log(`✅ Request to ${params.endpoint} succeeded on attempt ${params.retryCount + 1}`);
+      return result;
 
     } catch (error: any) {
       // 🔍 CHECK IF IT'S A 401 ERROR
@@ -179,10 +181,10 @@ export class BaseApiService {
             if (refreshSuccess) {
               console.log('✅ Token refreshed successfully, retrying original request...');
               
-              // Show success notification
-              notificationService.info('Token làm mới thành công', 'Đang thử lại yêu cầu...');
+              // ⚠️ DON'T show notification - this should be transparent to user
+              // User should only see the final result (success or error)
 
-              // 2️⃣ RETRY ORIGINAL REQUEST
+              // 2️⃣ RETRY ORIGINAL REQUEST  
               return await this.executeRequestWithRetry<T>({
                 ...params,
                 retryCount: params.retryCount + 1

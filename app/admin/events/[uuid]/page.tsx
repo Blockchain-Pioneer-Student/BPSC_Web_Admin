@@ -121,6 +121,7 @@ export default function AdminEventEditPage() {
   // Track if image was changed
   const [imageChanged, setImageChanged] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [uploadedHtmlFile, setUploadedHtmlFile] = useState<string | null>(null);
 
 
 
@@ -378,6 +379,58 @@ export default function AdminEventEditPage() {
     reader.readAsDataURL(file);
   };
 
+  // Handle HTML file upload
+  const handleHtmlFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.includes('html') && !file.name.toLowerCase().endsWith('.html') && !file.name.toLowerCase().endsWith('.htm')) {
+      toast.error("Please select an HTML file (.html or .htm)");
+      return;
+    }
+
+    // Validate file size (max 1MB for HTML files)
+    if (file.size > 1024 * 1024) {
+      toast.error("HTML file size must not exceed 1MB");
+      return;
+    }
+
+    // Read file content
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const htmlContent = event.target?.result as string;
+        
+        // Basic HTML sanitization - remove script tags and dangerous attributes
+        const sanitizedContent = htmlContent
+          .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
+          .replace(/on\w+="[^"]*"/gi, '') // Remove event handlers
+          .replace(/javascript:/gi, ''); // Remove javascript: protocols
+
+        // Set the content to the rich text editor
+        handleInputChange('notion_content', sanitizedContent);
+        
+        // Store the uploaded file name
+        setUploadedHtmlFile(file.name);
+        
+        toast.success(`HTML content imported from "${file.name}" successfully!`);
+        
+        // Clear the file input
+        e.target.value = '';
+      } catch (error) {
+        console.error("Error reading HTML file:", error);
+        toast.error("Failed to read HTML file");
+      }
+    };
+
+    reader.onerror = () => {
+      toast.error("Failed to read HTML file");
+    };
+
+    reader.readAsText(file, 'UTF-8');
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen bg-gray-50">
@@ -550,7 +603,7 @@ export default function AdminEventEditPage() {
               {/* Event Image */}
               <div className="space-y-4">
                 <Label>Event Image</Label>
-                
+                      
                 {/* Current Image Display */}
                 {formData.image && (
                   <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200">
@@ -595,12 +648,64 @@ export default function AdminEventEditPage() {
               </div>
 
               {/* Rich Text Editor for Content */}
-              <div className="space-y-2">
+              <div className="space-y-4">
                 <Label htmlFor="content">Event Content</Label>
+                
+                {/* HTML File Upload */}
+                <div className="p-4 bg-gray-50 rounded-lg border space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm text-gray-600">
+                        Upload HTML file to quickly import content
+                      </p>
+                      {uploadedHtmlFile && (
+                        <div className="mt-2 flex items-center gap-2">
+                          <div className="flex items-center gap-2 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            <span className="font-medium">{uploadedHtmlFile}</span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setUploadedHtmlFile(null);
+                              handleInputChange('notion_content', '');
+                            }}
+                            className="h-6 w-6 p-0 text-gray-500 hover:text-red-500"
+                          >
+                            ×
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                    <div>
+                      <input
+                        type="file"
+                        id="html-upload"
+                        accept=".html,.htm"
+                        onChange={handleHtmlFileUpload}
+                        className="hidden"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => document.getElementById('html-upload')?.click()}
+                        className="whitespace-nowrap"
+                      >
+                        <Upload className="w-4 h-4 mr-2" />
+                        {uploadedHtmlFile ? "Replace HTML" : "Import HTML"}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+                
                 <RichTextEditor
                   value={formData.notion_content}
                   onChange={(value: string) => handleInputChange('notion_content', value)}
-                  placeholder="Enter detailed event content..."
+                  placeholder="Enter detailed event content or import from HTML file..."
                 />
               </div>
 

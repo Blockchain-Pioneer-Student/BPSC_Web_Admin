@@ -84,7 +84,7 @@ class EventService extends BaseApiService {
       }
 
       const endpoint = `/events/get-all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-      return await this.get<Event[]>(endpoint, false); // Public endpoint
+      return await this.get<Event[]>(endpoint, true); 
     } catch (error) {
       console.error('Error fetching events:', error);
       throw error;
