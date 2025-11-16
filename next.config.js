@@ -38,6 +38,14 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'us1.discourse-cdn.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'encrypted-tbn0.gstatic.com'
+      },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com'
+      }
     ],
   },
 };

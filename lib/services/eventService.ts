@@ -29,6 +29,7 @@ interface Event {
   id: number;
   event_uuid: string;
   title: string;
+  slug: string;
   date: string;
   time?: string;
   location?: string;

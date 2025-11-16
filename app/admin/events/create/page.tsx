@@ -82,6 +82,7 @@ export default function AdminEventCreatePage() {
     category_id: undefined as number | undefined,
     speakers: [] as Speaker[],
     schedules: [] as Schedule[],
+    slug: "",
   });
   // console.log(formData.schedules);
 
@@ -91,6 +92,9 @@ export default function AdminEventCreatePage() {
 
   const handleInputChange = (field: string, value: any) => {
     hookHandleInputChange(field, value, formData, setFormData);
+    if (field === "slug") {
+      setFormData((prev) => ({ ...prev, slug: value }));
+    }
   };
 
   const handleImageUpload = async (file: File, field?: string) => {
@@ -569,6 +573,20 @@ export default function AdminEventCreatePage() {
                 <Button onClick={handleAddSpeaker} variant="outline">
                   Add Speaker
                 </Button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="slug">Slug</Label>
+                    <Input
+                      id="slug"
+                      value={formData.slug}
+                      onChange={(e) => handleInputChange("slug", e.target.value)}
+                      placeholder="Enter event slug..."
+                    />
+                  </div>
+                </div>
               </div>
 
               <div className="flex justify-end pt-6 border-t">

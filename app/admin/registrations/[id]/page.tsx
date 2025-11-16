@@ -27,7 +27,7 @@ import Link from "next/link";
 export default function RegistrationDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const registrationId = parseInt(params.slug as string, 10);
+  const registrationId = parseInt(params.id as string, 10);
 
   // State
   const [registration, setRegistration] = useState<Registration | null>(null);

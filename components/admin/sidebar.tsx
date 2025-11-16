@@ -102,27 +102,12 @@ const menuItems = [
     ],
   },
   {
-    title: "� FILE MANAGEMENT",
+    title: "📝 BLOGS",
     items: [
       {
-        title: "Uploads",
-        href: "/admin/uploads",
-        icon: Image,
-      },
-    ],
-  },
-  {
-    title: "⚙️ SETTINGS",
-    items: [
-      {
-        title: "Database Config",
-        href: "/admin/config/database",
-        icon: Database,
-      },
-      {
-        title: "System Settings",
-        href: "/admin/settings",
-        icon: Settings,
+        title: "All Blogs",
+        href: "/admin/blogs",
+        icon: Newspaper,
       },
     ],
   },

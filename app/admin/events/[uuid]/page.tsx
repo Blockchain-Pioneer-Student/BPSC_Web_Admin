@@ -101,6 +101,7 @@ export default function AdminEventEditPage() {
     category_id: undefined as number | undefined,
     speakers: [] as Speaker[],
     schedules: [] as Schedule[],
+    slug: "",
   });
 
   // Original data to track changes
@@ -116,6 +117,7 @@ export default function AdminEventEditPage() {
     category_id: undefined as number | undefined,
     speakers: [] as Speaker[],
     schedules: [] as Schedule[],
+    slug: "",
   });
 
   // Track if image was changed
@@ -148,6 +150,7 @@ export default function AdminEventEditPage() {
             category_id: eventData.category_id || undefined,
             speakers: eventData.speakers || [],
             schedules: eventData.schedules || [],
+            slug: eventData.slug || "",
           };
           setFormData(initialData);
           setOriginalData(initialData);
@@ -175,6 +178,10 @@ export default function AdminEventEditPage() {
   // Handle input change
   const handleInputChange = (field: string, value: any) => {
     hookHandleInputChange(field, value, formData, setFormData);
+    
+    if (field === "slug") {
+      setFormData((prev) => ({ ...prev, slug: value }));
+    }
   };
 
   // Handle speakers
@@ -278,6 +285,10 @@ export default function AdminEventEditPage() {
     
     if (!arraysEqual(formData.schedules, originalData.schedules)) {
       changes.schedules = formData.schedules.filter((schedule) => schedule.title.trim());
+    }
+    
+    if (formData.slug !== originalData.slug) {
+      changes.slug = formData.slug.trim();
     }
     
     return changes;
@@ -863,6 +874,17 @@ export default function AdminEventEditPage() {
                 <Button onClick={handleAddSpeaker} variant="outline">
                   Add Speaker
                 </Button>
+              </div>
+
+              {/* Slug Field */}
+              <div className="space-y-2">
+                <Label htmlFor="slug">Slug</Label>
+                <Input
+                  id="slug"
+                  value={formData.slug}
+                  onChange={(e) => handleInputChange("slug", e.target.value)}
+                  placeholder="Enter event slug..."
+                />
               </div>
 
               {/* Save Button */}
