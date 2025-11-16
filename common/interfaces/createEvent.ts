@@ -14,6 +14,7 @@ interface Schedule {
 
 interface CreateEventData {
   title: string;
+  slug: string;
   date: string;
   time?: string;
   location?: string;

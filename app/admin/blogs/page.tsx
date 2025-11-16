@@ -245,6 +245,12 @@ export default function AdminBlogsPage() {
                             </div>
                           </div>
                         </div>
+
+                        {/* Publish Status */}
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium">Published:</span>
+                          <span>{blog.is_published ? "Yes" : "No"}</span>
+                        </div>
                       </div>
 
                       {/* Action Buttons */}

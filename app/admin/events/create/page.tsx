@@ -92,6 +92,7 @@ export default function AdminEventCreatePage() {
 
   const handleInputChange = (field: string, value: any) => {
     hookHandleInputChange(field, value, formData, setFormData);
+
     if (field === "slug") {
       setFormData((prev) => ({ ...prev, slug: value }));
     }
@@ -266,6 +267,16 @@ export default function AdminEventCreatePage() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Slug</Label>
+                  <Input
+                    id="slug"
+                    value={formData.slug}
+                    onChange={(e) => handleInputChange("slug", e.target.value)}
+                    placeholder="Enter event slug..."
+                  />
                 </div>
               </div>
 
@@ -575,19 +586,7 @@ export default function AdminEventCreatePage() {
                 </Button>
               </div>
 
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="slug">Slug</Label>
-                    <Input
-                      id="slug"
-                      value={formData.slug}
-                      onChange={(e) => handleInputChange("slug", e.target.value)}
-                      placeholder="Enter event slug..."
-                    />
-                  </div>
-                </div>
-              </div>
+              
 
               <div className="flex justify-end pt-6 border-t">
                 <Button

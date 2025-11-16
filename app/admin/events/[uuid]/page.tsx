@@ -178,10 +178,6 @@ export default function AdminEventEditPage() {
   // Handle input change
   const handleInputChange = (field: string, value: any) => {
     hookHandleInputChange(field, value, formData, setFormData);
-    
-    if (field === "slug") {
-      setFormData((prev) => ({ ...prev, slug: value }));
-    }
   };
 
   // Handle speakers
@@ -528,8 +524,9 @@ export default function AdminEventEditPage() {
                 />
               </div>
 
-              {/* Category Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Category and Slug */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Category Selection */}
                 <div className="space-y-2">
                   <Label htmlFor="category">Event Category</Label>
                   <Select
@@ -550,6 +547,18 @@ export default function AdminEventEditPage() {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                {/* Slug Input */}
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Slug</Label>
+                  <Input
+                    id="slug"
+                    type="text"
+                    value={formData.slug}
+                    onChange={(e) => handleInputChange("slug", e.target.value)}
+                    placeholder="Enter slug"
+                  />
                 </div>
               </div>
 
@@ -874,17 +883,6 @@ export default function AdminEventEditPage() {
                 <Button onClick={handleAddSpeaker} variant="outline">
                   Add Speaker
                 </Button>
-              </div>
-
-              {/* Slug Field */}
-              <div className="space-y-2">
-                <Label htmlFor="slug">Slug</Label>
-                <Input
-                  id="slug"
-                  value={formData.slug}
-                  onChange={(e) => handleInputChange("slug", e.target.value)}
-                  placeholder="Enter event slug..."
-                />
               </div>
 
               {/* Save Button */}

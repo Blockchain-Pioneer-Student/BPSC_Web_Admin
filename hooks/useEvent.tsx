@@ -302,6 +302,7 @@ export const useEvent = (): UseEventReturn => {
       category_id: data.category_id || undefined,
       speakers: data.speakers?.filter((speaker: any) => speaker.name.trim()) || [],
       schedules: data.schedules?.filter((schedule: any) => schedule.title.trim()) || [],
+      slug: data.slug || undefined,
     };
     return normalizedData;
   }, []);

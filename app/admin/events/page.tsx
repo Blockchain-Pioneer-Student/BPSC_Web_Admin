@@ -291,6 +291,12 @@ export default function AdminEventsPage() {
                                 </Badge>
                               )}
                             </div>
+
+                            {/* Visibility Status */}
+                            <div className="flex items-center gap-1">
+                              <span className="font-medium">Visible:</span>
+                              <span>{event.is_visible ? "Yes" : "No"}</span>
+                            </div>
                           </div>
                         </div>
                       </div>

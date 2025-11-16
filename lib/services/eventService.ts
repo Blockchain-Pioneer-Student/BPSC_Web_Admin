@@ -133,6 +133,7 @@ class EventService extends BaseApiService {
       if (eventData.notion_content) formData.append('notion_content', eventData.notion_content);
       if (eventData.is_visible !== undefined) formData.append('is_visible', String(eventData.is_visible));
       if (eventData.category_id) formData.append('category_id', String(eventData.category_id));
+      if (eventData.slug) formData.append('slug', eventData.slug);
 
       // Append schedules
       if (eventData.schedules) {
@@ -187,6 +188,9 @@ class EventService extends BaseApiService {
       }
       if (updateData.category_id !== undefined) {
         formData.append('category_id', String(updateData.category_id));
+      }
+      if (updateData.slug !== undefined) {
+        formData.append('slug', updateData.slug);
       }
 
       // Append schedules if provided
