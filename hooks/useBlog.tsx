@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { blogService, Blog, BlogCategory } from '@/lib/services/blogService';
+import { blogService, Blog, BlogCategory, BlogTag } from '@/lib/services/blogService';
 import { toast } from 'sonner';
 import { CreateBlog } from '@/common/interfaces/createBlog';
 
@@ -12,8 +12,10 @@ interface UseBlogParams {
 interface UseBlogReturn {
   blogs: Blog[];
   categories: BlogCategory[];
+  tags: BlogTag[];
   loading: boolean;
   categoriesLoading: boolean;
+  tagsLoading: boolean;
   currentPage: number;
   itemsPerPage: number;
   totalPages: number;
@@ -44,8 +46,10 @@ const ITEMS_PER_PAGE = 10;
 export const useBlog = (): UseBlogReturn => {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [categories, setCategories] = useState<BlogCategory[]>([]);
+  const [tags, setTags] = useState<BlogTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [tagsLoading, setTagsLoading] = useState(true);
 
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(ITEMS_PER_PAGE);
@@ -92,6 +96,20 @@ export const useBlog = (): UseBlogReturn => {
     }
   }, []);
 
+  const fetchTags = useCallback(async () => {
+    try {
+      setTagsLoading(true);
+      const tagsData = await blogService.getAllTags();
+      setTags(tagsData);
+    } catch (error) {
+      console.error('Error fetching blog tags:', error);
+      // Don't show toast error for tags to avoid clutter if it fails silently
+      setTags([]);
+    } finally {
+      setTagsLoading(false);
+    }
+  }, []);
+
   const refreshBlogs = useCallback(async () => {
     await fetchBlogs();
   }, [fetchBlogs]);
@@ -120,7 +138,7 @@ export const useBlog = (): UseBlogReturn => {
     }
   }, [refreshBlogs]);
 
-  const updateBlog = useCallback(async (uuid: string, updateData: FormData) => {
+  const updateBlog = useCallback(async (uuid: string, updateData: FormData): Promise<Blog> => {
     try {
       const updatedBlog = await blogService.updateBlog(uuid, updateData);
       toast.success('Blog updated successfully!');
@@ -185,6 +203,9 @@ export const useBlog = (): UseBlogReturn => {
       if (value !== undefined && value !== null) {
         if (value instanceof File) {
           normalizedData.append(key, value);
+        } else if (typeof value === 'object' && key === 'tags') {
+          // Serialize tags to JSON string
+          normalizedData.append(key, JSON.stringify(value));
         } else {
           normalizedData.append(key, value.toString());
         }
@@ -196,7 +217,8 @@ export const useBlog = (): UseBlogReturn => {
   useEffect(() => {
     fetchBlogs();
     fetchCategories();
-  }, [fetchBlogs, fetchCategories]);
+    fetchTags();
+  }, [fetchBlogs, fetchCategories, fetchTags]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -206,8 +228,10 @@ export const useBlog = (): UseBlogReturn => {
   return {
     blogs,
     categories,
+    tags,
     loading,
     categoriesLoading,
+    tagsLoading,
     currentPage,
     itemsPerPage,
     totalPages,

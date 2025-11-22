@@ -15,8 +15,9 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
-import { Upload, ArrowLeft, Save, Eye, EyeOff, Image as ImageIcon } from "lucide-react";
+import { Upload, ArrowLeft, Save, Eye, EyeOff, Image as ImageIcon, X } from "lucide-react";
 import { useBlog } from "@/hooks/useBlog";
 import { Blog } from "@/lib/services/blogService";
 import { Textarea } from "@/components/ui/textarea";
@@ -50,11 +51,13 @@ export default function AdminBlogCreatePage() {
         category_id: undefined as number | undefined,
         thumbnail_image: undefined as File | undefined,
         author: "", // New field for author
+        tags: [] as { name: string; slug: string }[], // Add tags field
     });
 
     const [saving, setSaving] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [uploadedHtmlFile, setUploadedHtmlFile] = useState<string | null>(null);
+    const [tagInput, setTagInput] = useState(""); // Add state for tag input
 
 
     const handleInputChange = (field: string, value: any) => {
@@ -158,6 +161,40 @@ export default function AdminBlogCreatePage() {
         };
 
         reader.readAsText(file, "UTF-8");
+    };
+
+    const handleAddTag = () => {
+        if (!tagInput.trim()) return;
+
+        const newTag = {
+            name: tagInput.trim(),
+            slug: tagInput.trim().toLowerCase().replace(/\s+/g, "-")
+        };
+
+        if (formData.tags.some(tag => tag.name.toLowerCase() === newTag.name.toLowerCase())) {
+            toast.error("Tag already exists");
+            return;
+        }
+
+        setFormData(prev => ({
+            ...prev,
+            tags: [...prev.tags, newTag]
+        }));
+        setTagInput("");
+    };
+
+    const handleRemoveTag = (index: number) => {
+        setFormData(prev => ({
+            ...prev,
+            tags: prev.tags.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleTagInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            handleAddTag();
+        }
     };
 
     return (
@@ -338,6 +375,47 @@ export default function AdminBlogCreatePage() {
                                     placeholder="Enter author name..."
                                     className="text-lg font-semibold"
                                 />
+                            </div>
+
+                            <div className="space-y-4">
+                                <Label>Tags</Label>
+                                <div className="space-y-3">
+                                    {formData.tags.length > 0 && (
+                                        <div className="flex flex-wrap gap-2">
+                                            {formData.tags.map((tag, index) => (
+                                                <Badge key={index} variant="secondary" className="pl-3 pr-1 py-1">
+                                                    {tag.name}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleRemoveTag(index)}
+                                                        className="ml-2 hover:bg-gray-300 rounded-full p-0.5"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                </Badge>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    <div className="flex gap-2">
+                                        <Input
+                                            value={tagInput}
+                                            onChange={(e) => setTagInput(e.target.value)}
+                                            onKeyPress={handleTagInputKeyPress}
+                                            placeholder="Enter tag name and press Enter"
+                                        />
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            onClick={handleAddTag}
+                                        >
+                                            Add Tag
+                                        </Button>
+                                    </div>
+                                    <p className="text-sm text-gray-500">
+                                        Press Enter or click &quot;Add Tag&quot; to add a new tag
+                                    </p>
+                                </div>
                             </div>
 
                             <div className="flex items-center justify-between p-4 border rounded-lg">

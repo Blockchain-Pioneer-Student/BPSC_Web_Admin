@@ -21,8 +21,9 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
-import { Upload, ArrowLeft, Save, Eye, EyeOff, Image as ImageIcon } from "lucide-react";
+import { Upload, ArrowLeft, Save, Eye, EyeOff, Image as ImageIcon, X } from "lucide-react";
 import { useBlog } from "@/hooks/useBlog";
 import { Blog } from "@/lib/services/blogService";
 
@@ -58,9 +59,11 @@ export default function AdminBlogEditPage() {
     thumbnail_url: "",
     is_published: true,
     category_id: undefined as number | undefined,
+    tags: [] as { name: string; slug: string }[], // Add tags field
   });
 
   const [originalData, setOriginalData] = useState(formData);
+  const [tagInput, setTagInput] = useState(""); // Add state for tag input
 
   // Fetch blog
   useEffect(() => {
@@ -80,6 +83,7 @@ export default function AdminBlogEditPage() {
             thumbnail_url: blogData.thumbnail_url || "",
             is_published: blogData.is_published ?? true,
             category_id: blogData.category_id || undefined,
+            tags: blogData.tags || [] // Map tags from API
           };
           setFormData(initial);
           setOriginalData(initial);
@@ -173,6 +177,40 @@ export default function AdminBlogEditPage() {
     reader.readAsText(file, "UTF-8");
   };
 
+  const handleAddTag = () => {
+    if (!tagInput.trim()) return;
+
+    const newTag = {
+      name: tagInput.trim(),
+      slug: tagInput.trim().toLowerCase().replace(/\s+/g, "-")
+    };
+
+    if (formData.tags.some(tag => tag.name.toLowerCase() === newTag.name.toLowerCase())) {
+      toast.error("Tag already exists");
+      return;
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      tags: [...prev.tags, newTag]
+    }));
+    setTagInput("");
+  };
+
+  const handleRemoveTag = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleTagInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleAddTag();
+    }
+  };
+
   const handleSubmit = async () => {
     if (!formData.title.trim()) {
       toast.error("Blog title is required");
@@ -185,7 +223,10 @@ export default function AdminBlogEditPage() {
 
       Object.keys(formData).forEach((key) => {
         const typedKey = key as keyof typeof formData;
-        if (formData[typedKey] !== originalData[typedKey]) {
+
+        if (typedKey === "tags") {
+          changes.append("tags", JSON.stringify(formData.tags));
+        } else if (formData[typedKey] !== originalData[typedKey]) {
           changes.append(key, formData[typedKey] as string);
         }
       });
@@ -439,6 +480,48 @@ export default function AdminBlogEditPage() {
                   onChange={(value: string) => handleInputChange("content", value)}
                   placeholder="Write your blog content here or import from an HTML file..."
                 />
+              </div>
+
+              {/* Tags */}
+              <div className="space-y-4">
+                <Label>Tags</Label>
+                <div className="space-y-3">
+                  {formData.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.tags.map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="pl-3 pr-1 py-1">
+                          {tag.name}
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveTag(index)}
+                            className="ml-2 hover:bg-gray-300 rounded-full p-0.5"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2">
+                    <Input
+                      value={tagInput}
+                      onChange={(e) => setTagInput(e.target.value)}
+                      onKeyPress={handleTagInputKeyPress}
+                      placeholder="Enter tag name and press Enter"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleAddTag}
+                    >
+                      Add Tag
+                    </Button>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    Press Enter or click &quot;Add Tag&quot; to add a new tag
+                  </p>
+                </div>
               </div>
 
               {/* Published / Draft */}

@@ -98,6 +98,15 @@ class BlogService extends BaseApiService {
     }
   }
 
+  async getAllTags(): Promise<BlogTag[]> {
+    try {
+      return await this.get<BlogTag[]>('/blogs/tags', true);
+    } catch (error) {
+      console.error('Error fetching blog tags:', error);
+      throw error;
+    }
+  }
+
   async createBlog(blogData: FormData): Promise<Blog> {
     try {
       return await this.post<Blog>('/blogs/create', blogData, true);
@@ -127,4 +136,4 @@ class BlogService extends BaseApiService {
 }
 
 export const blogService = new BlogService();
-export type { Blog, GetAllBlogsParams, BlogCategory };
+export type { Blog, GetAllBlogsParams, BlogCategory, BlogTag };
