@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { 
+import {
   ArrowLeft,
   Upload,
   Save,
@@ -37,7 +37,7 @@ import dynamic from "next/dynamic";
 // Dynamically import TinyMCE to avoid SSR issues
 const RichTextEditor = dynamic(
   () => import("@/components/ui/rich-text-editor"),
-  { 
+  {
     ssr: false,
     loading: () => (
       <div className="min-h-[400px] bg-gray-50 rounded-lg animate-pulse flex items-center justify-center">
@@ -48,6 +48,7 @@ const RichTextEditor = dynamic(
 );
 
 interface Speaker {
+  id?: number; // Optional: only exists for speakers loaded from DB
   name: string;
   role?: string;
   avatar_img?: string;
@@ -73,7 +74,7 @@ export default function AdminEventEditPage() {
   const [uploading, setUploading] = useState(false);
 
   // Use Event Hook
-  const { 
+  const {
     categories,
     categoriesLoading,
     updateEvent,
@@ -124,6 +125,7 @@ export default function AdminEventEditPage() {
   const [imageChanged, setImageChanged] = useState(false);
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [uploadedHtmlFile, setUploadedHtmlFile] = useState<string | null>(null);
+  const [speakerAvatarFiles, setSpeakerAvatarFiles] = useState<(File | null)[]>([]);
 
 
 
@@ -135,7 +137,7 @@ export default function AdminEventEditPage() {
       try {
         setLoading(true);
         const eventData = await getEventByUuid(eventUuid);
-        
+
         if (eventData) {
           setEvent(eventData);
           const initialData = {
@@ -154,6 +156,8 @@ export default function AdminEventEditPage() {
           };
           setFormData(initialData);
           setOriginalData(initialData);
+          // initialize placeholders for speaker avatar files (will store File objects when uploaded)
+          setSpeakerAvatarFiles((eventData.speakers || []).map(() => null));
         }
       } catch (error) {
         console.error("Error fetching event:", error);
@@ -183,10 +187,12 @@ export default function AdminEventEditPage() {
   // Handle speakers
   const handleAddSpeaker = () => {
     hookHandleAddSpeaker(formData, setFormData);
+    setSpeakerAvatarFiles((prev) => [...prev, null]);
   };
 
   const handleDeleteSpeaker = (index: number) => {
     hookHandleDeleteSpeaker(index, formData, setFormData);
+    setSpeakerAvatarFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSpeakerChange = (index: number, field: keyof Speaker, value: any) => {
@@ -231,28 +237,28 @@ export default function AdminEventEditPage() {
   // Get only changed fields
   const getChangedFields = () => {
     const changes: any = {};
-    
+
     // Check each field for changes
     if (formData.title !== originalData.title) {
       changes.title = formData.title.trim();
     }
-    
+
     if (formData.date !== originalData.date) {
       changes.date = formData.date;
     }
-    
+
     if (formData.time !== originalData.time) {
       changes.time = formData.time || undefined;
     }
-    
+
     if (formData.location !== originalData.location) {
       changes.location = formData.location || undefined;
     }
-    
+
     if (formData.specific_location !== originalData.specific_location) {
       changes.specific_location = formData.specific_location || undefined;
     }
-    
+
     // Handle image changes - check if image was changed OR if we have a new file
     if (imageChanged || selectedImageFile) {
       // If we have a file to upload, mark it for the API call
@@ -262,31 +268,31 @@ export default function AdminEventEditPage() {
         changes.image = formData.image || undefined;
       }
     }
-    
+
     if (formData.notion_content !== originalData.notion_content) {
       changes.notion_content = formData.notion_content || undefined;
     }
-    
+
     if (formData.is_visible !== originalData.is_visible) {
       changes.is_visible = formData.is_visible;
     }
-    
+
     if (formData.category_id !== originalData.category_id) {
       changes.category_id = formData.category_id || undefined;
     }
-    
+
     if (!arraysEqual(formData.speakers, originalData.speakers)) {
       changes.speakers = formData.speakers.filter((speaker) => speaker.name.trim());
     }
-    
+
     if (!arraysEqual(formData.schedules, originalData.schedules)) {
       changes.schedules = formData.schedules.filter((schedule) => schedule.title.trim());
     }
-    
+
     if (formData.slug !== originalData.slug) {
       changes.slug = formData.slug.trim();
     }
-    
+
     return changes;
   };
 
@@ -294,51 +300,67 @@ export default function AdminEventEditPage() {
   const handleSubmit = async () => {
     try {
       setSaving(true);
-      
+
       // Validate required fields
       if (!formData.title.trim()) {
         toast.error("Event name is required");
         return;
       }
-      
+
       if (!formData.date) {
         toast.error("Event date is required");
         return;
       }
-      
+
       // Get only changed fields
       const updateData = getChangedFields();
-      
-      // If no changes AND no image file, show message and return
-      if (Object.keys(updateData).length === 0 && !selectedImageFile) {
+
+      // If no changes AND no image file AND no speaker avatar files, show message and return
+      const hasSpeakerAvatarFiles = speakerAvatarFiles.some((f) => !!f);
+      if (Object.keys(updateData).length === 0 && !selectedImageFile && !hasSpeakerAvatarFiles) {
         toast.info("No changes to save");
         return;
       }
-      
+
       console.log("Update data (changed fields only):", updateData);
       console.log("Selected image file:", selectedImageFile);
-      
+
       // Prepare data for API call
       const apiData = { ...updateData };
-      
+
+
       // Remove internal flags from API data
       delete apiData._hasImageFile;
-      
+
       // Handle image file upload
       if (imageChanged && selectedImageFile) {
         apiData.image_file = selectedImageFile;
         // Remove the blob URL from the data since we're sending the file
         delete apiData.image;
       }
-      
+
+      // Include speaker avatar files if any were uploaded
+      // Convert array to mapping object: { speakerId or speakerIndex: File }
+      const speakerAvatarMapping: { [key: number]: File } = {};
+      speakerAvatarFiles.forEach((file, index) => {
+        if (file) {
+          // Use speaker ID if available (for updates), otherwise use index (for creates)
+          const key = formData.speakers[index]?.id ?? index;
+          speakerAvatarMapping[key] = file;
+        }
+      });
+      if (Object.keys(speakerAvatarMapping).length > 0) {
+        apiData.speaker_avatar_images = speakerAvatarMapping;
+      }
+
       // Call API to update event
       await updateEvent(eventUuid, apiData);
-      
+
       // Redirect back to events list after a delay
       setTimeout(() => {
         router.push('/admin/events');
       }, 1500);
-      
+
     } catch (error) {
       console.error("Error saving event:", error);
       toast.error("Unable to save event information");
@@ -356,13 +378,13 @@ export default function AdminEventEditPage() {
         toast.error("Please select an image file");
         return;
       }
-      
+
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
         toast.error("Image size must not exceed 5MB");
         return;
       }
-      
+
       handleImageUpload(file);
     }
   };
@@ -373,7 +395,7 @@ export default function AdminEventEditPage() {
       toast.error("Please select an image file");
       return;
     }
-    
+
     if (file.size > 5 * 1024 * 1024) {
       toast.error("Image size must not exceed 5MB");
       return;
@@ -382,6 +404,12 @@ export default function AdminEventEditPage() {
     const reader = new FileReader();
     reader.onloadend = () => {
       handleSpeakerChange(index, "avatar_img", reader.result as string);
+      // store actual File so we can include it in the multipart upload later
+      setSpeakerAvatarFiles((prev) => {
+        const next = [...prev];
+        next[index] = file;
+        return next;
+      });
     };
     reader.readAsDataURL(file);
   };
@@ -408,7 +436,7 @@ export default function AdminEventEditPage() {
     reader.onload = (event) => {
       try {
         const htmlContent = event.target?.result as string;
-        
+
         // Basic HTML sanitization - remove script tags and dangerous attributes
         const sanitizedContent = htmlContent
           .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') // Remove script tags
@@ -417,12 +445,12 @@ export default function AdminEventEditPage() {
 
         // Set the content to the rich text editor
         handleInputChange('notion_content', sanitizedContent);
-        
+
         // Store the uploaded file name
         setUploadedHtmlFile(file.name);
-        
+
         toast.success(`HTML content imported from "${file.name}" successfully!`);
-        
+
         // Clear the file input
         e.target.value = '';
       } catch (error) {
@@ -486,7 +514,7 @@ export default function AdminEventEditPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      
+
       <div className="flex-1 p-8">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
@@ -497,7 +525,7 @@ export default function AdminEventEditPage() {
                 Back to list
               </Button>
             </Link>
-            
+
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Edit Event
             </h1>
@@ -531,7 +559,7 @@ export default function AdminEventEditPage() {
                   <Label htmlFor="category">Event Category</Label>
                   <Select
                     value={formData.category_id?.toString() || ""}
-                    onValueChange={(value) => 
+                    onValueChange={(value) =>
                       handleInputChange("category_id", value ? parseInt(value, 10) : undefined)
                     }
                     disabled={categoriesLoading}
@@ -577,7 +605,7 @@ export default function AdminEventEditPage() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="time">Time</Label>
                   <div className="relative">
@@ -608,14 +636,14 @@ export default function AdminEventEditPage() {
                     />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="specific_location">Short Description</Label>
                   <Input
                     id="specific_location"
                     value={formData.specific_location}
                     onChange={(e) => handleInputChange('specific_location', e.target.value)}
-                    
+
                   />
                 </div>
               </div>
@@ -623,7 +651,7 @@ export default function AdminEventEditPage() {
               {/* Event Image */}
               <div className="space-y-4">
                 <Label>Event Image</Label>
-                      
+
                 {/* Current Image Display */}
                 {formData.image && (
                   <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200">
@@ -635,16 +663,16 @@ export default function AdminEventEditPage() {
                     />
                   </div>
                 )}
-                
+
                 {!formData.image && (
                   <div className="w-full h-64 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center">
-                  <div className="text-center">
-                    <ImageIcon className="mx-auto h-12 w-12 text-gray-400 mb-2" />
-                    <p className="text-gray-500">No event image</p>
-                  </div>
+                    <div className="text-center">
+                      <ImageIcon className="mx-auto h-12 w-12 text-gray-400 mb-2" />
+                      <p className="text-gray-500">No event image</p>
+                    </div>
                   </div>
                 )}
-                
+
                 {/* Upload Button */}
                 <div>
                   <input
@@ -670,7 +698,7 @@ export default function AdminEventEditPage() {
               {/* Rich Text Editor for Content */}
               <div className="space-y-4">
                 <Label htmlFor="content">Event Content</Label>
-                
+
                 {/* HTML File Upload */}
                 <div className="p-4 bg-gray-50 rounded-lg border space-y-3">
                   <div className="flex items-center justify-between">
@@ -721,7 +749,7 @@ export default function AdminEventEditPage() {
                     </div>
                   </div>
                 </div>
-                
+
                 <RichTextEditor
                   value={formData.notion_content}
                   onChange={(value: string) => handleInputChange('notion_content', value)}
@@ -742,7 +770,7 @@ export default function AdminEventEditPage() {
                       {formData.is_visible ? "Event is visible" : "Event is hidden"}
                     </Label>
                     <p className="text-sm text-gray-500">
-                      {formData.is_visible 
+                      {formData.is_visible
                         ? "Event will be publicly visible to users"
                         : "Event will not be visible to users"
                       }

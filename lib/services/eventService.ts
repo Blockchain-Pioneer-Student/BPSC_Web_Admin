@@ -85,7 +85,7 @@ class EventService extends BaseApiService {
       }
 
       const endpoint = `/events/get-all${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-      return await this.get<Event[]>(endpoint, true); 
+      return await this.get<Event[]>(endpoint, true);
     } catch (error) {
       console.error('Error fetching events:', error);
       throw error;
@@ -150,6 +150,21 @@ class EventService extends BaseApiService {
         formData.append('image_file', eventData.image_file);
       }
 
+      // Append speaker avatar files if provided (new format with mapping)
+      if (eventData.speaker_avatar_images) {
+        const mapping: number[] = [];
+        Object.entries(eventData.speaker_avatar_images).forEach(([speakerIdStr, file]) => {
+          const speakerId = parseInt(speakerIdStr, 10);
+          if (file) {
+            formData.append('speaker_avatar_images', file);
+            mapping.push(speakerId);
+          }
+        });
+        if (mapping.length > 0) {
+          formData.append('speaker_avatar_mapping', JSON.stringify(mapping));
+        }
+      }
+
       return await this.post<Event>('/events/create', formData, true);
     } catch (error) {
       console.error('Error creating event:', error);
@@ -157,7 +172,7 @@ class EventService extends BaseApiService {
     }
   }
 
-  async updateEvent(uuid: string, updateData: Partial<Event & { image_file?: File }>): Promise<Event> {
+  async updateEvent(uuid: string, updateData: Partial<Event & { image_file?: File; speaker_avatar_images?: File[] | { [speakerId: number]: File } }>): Promise<Event> {
     try {
       const formData = new FormData();
 
@@ -206,6 +221,32 @@ class EventService extends BaseApiService {
       // Append image file if provided
       if (updateData.image_file) {
         formData.append('image_file', updateData.image_file);
+      }
+
+      // Append speaker avatar files if provided
+      if ((updateData as any).speaker_avatar_images) {
+        const speakerAvatarImages = (updateData as any).speaker_avatar_images;
+
+        // Check if it's an object (new format) or array (old format)
+        if (Array.isArray(speakerAvatarImages)) {
+          // Old format: array of files
+          speakerAvatarImages.forEach((file: File) => {
+            if (file) formData.append('speaker_avatar_images', file);
+          });
+        } else {
+          // New format: object mapping speakerId to file
+          const mapping: number[] = [];
+          Object.entries(speakerAvatarImages).forEach(([speakerIdStr, file]) => {
+            const speakerId = parseInt(speakerIdStr, 10);
+            if (file) {
+              formData.append('speaker_avatar_images', file as File);
+              mapping.push(speakerId);
+            }
+          });
+          if (mapping.length > 0) {
+            formData.append('speaker_avatar_mapping', JSON.stringify(mapping));
+          }
+        }
       }
 
       const result = await this.patch<any>(`/events/update/${uuid}`, formData, true);

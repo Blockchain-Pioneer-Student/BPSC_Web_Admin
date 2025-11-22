@@ -26,6 +26,11 @@ interface CreateEventData {
   schedules?: Schedule[];
   speakers?: Speaker[];
   image_file?: File;
+
+  // NEW: mapping id -> file
+  speaker_avatar_images?: {
+    [speakerId: number]: File;   // ví dụ: { 1: File, 5: File, 8: File }
+  };
 }
 
-export type{ CreateEventData, Speaker, Schedule };
+export type { CreateEventData, Speaker, Schedule };

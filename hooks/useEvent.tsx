@@ -10,6 +10,7 @@ interface UseEventParams {
 }
 
 interface Speaker {
+  id?: number; // Optional: only exists for speakers loaded from DB
   name: string;
   role?: string;
   avatar_img?: string;
@@ -27,11 +28,11 @@ interface UseEventReturn {
   // Data
   events: Event[];
   categories: EventCategory[];
-  
+
   // Loading states
   loading: boolean;
   categoriesLoading: boolean;
-  
+
   // Pagination
   currentPage: number;
   itemsPerPage: number;
@@ -39,12 +40,12 @@ interface UseEventReturn {
   startIndex: number;
   endIndex: number;
   currentEvents: Event[];
-  
+
   // Filters
   selectedCategory: string;
   searchQuery: string;
   sortBy: string;
-  
+
   // Actions
   setCurrentPage: (page: number | ((prev: number) => number)) => void;
   setItemsPerPage: (itemsPerPage: number) => void;
@@ -57,7 +58,7 @@ interface UseEventReturn {
   createEvent: (eventData: CreateEventData) => Promise<void>;
   updateEvent: (uuid: string, updateData: any) => Promise<Event>;
   getEventByUuid: (uuid: string) => Promise<Event>;
-  
+
   // Form management functions
   handleInputChange: (field: string, value: any, formData: any, setFormData: any) => void;
   handleImageUpload: (file: File, field?: string, setUploading?: any, setFormData?: any) => Promise<void>;
@@ -77,14 +78,14 @@ export const useEvent = (): UseEventReturn => {
   const [categories, setCategories] = useState<EventCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
-  
+
   // Filters and pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(ITEMS_PER_PAGE);
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("created_at_DESC");
-  
+
   // Pagination calculations
   const totalPages = Math.max(1, Math.ceil(events.length / itemsPerPage));
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -100,7 +101,7 @@ export const useEvent = (): UseEventReturn => {
         category: selectedCategory === "all" ? undefined : selectedCategory,
         search: searchQuery || undefined,
       };
-      
+
       const data = await eventService.getAllEvents(params);
       setEvents(data);
     } catch (error) {
@@ -135,8 +136,9 @@ export const useEvent = (): UseEventReturn => {
   // Create event function
   const createEvent = useCallback(async (eventData: CreateEventData) => {
     try {
-      console.log(eventData);
-      const response = await eventService.createEvent(eventData);
+      const payload = normalizeEventData(eventData);
+      console.log('Creating event with payload:', payload);
+      const response = await eventService.createEvent(payload as CreateEventData);
 
       if (!response || response.status !== "success") {
         throw new Error("Failed to create event");
@@ -153,9 +155,10 @@ export const useEvent = (): UseEventReturn => {
   // Update event function
   const updateEvent = useCallback(async (uuid: string, updateData: any) => {
     try {
-      console.log('Updating event:', uuid, 'with data:', updateData);
-      const response = await eventService.updateEvent(uuid, updateData);
-      
+      const payload = normalizeEventData(updateData);
+      console.log('Updating event:', uuid, 'with payload:', payload);
+      const response = await eventService.updateEvent(uuid, payload);
+
       toast.success("Event updated successfully");
       await refreshEvents();
       return response;
@@ -172,7 +175,7 @@ export const useEvent = (): UseEventReturn => {
     const confirmed = window.confirm(
       "Are you sure you want to delete this event? This action cannot be undone."
     );
-    
+
     if (!confirmed) {
       return; // User cancelled deletion
     }
@@ -180,7 +183,7 @@ export const useEvent = (): UseEventReturn => {
     try {
       console.log('Deleting event:', eventUuid);
       await eventService.deleteEvent(eventUuid);
-      
+
       toast.success("Event deleted successfully");
       await refreshEvents();
     } catch (error) {
@@ -290,20 +293,30 @@ export const useEvent = (): UseEventReturn => {
   }, []);
 
   const normalizeEventData = useCallback((data: any) => {
-    const normalizedData = {
-      title: data.title.trim(),
-      date: data.date,
-      time: data.time || undefined,
-      location: data.location || undefined,
-      excerpt: data.excerpt || undefined,
-      image_file: data.image_file,
-      notion_content: data.notion_content || undefined,
-      is_visible: data.is_visible,
-      category_id: data.category_id || undefined,
-      speakers: data.speakers?.filter((speaker: any) => speaker.name.trim()) || [],
-      schedules: data.schedules?.filter((schedule: any) => schedule.title.trim()) || [],
-      slug: data.slug || undefined,
-    };
+    const normalizedData: any = {};
+
+    if (typeof data.title === 'string') normalizedData.title = data.title.trim();
+    if (data.date !== undefined) normalizedData.date = data.date;
+    if (data.time !== undefined) normalizedData.time = data.time || undefined;
+    if (data.location !== undefined) normalizedData.location = data.location || undefined;
+    if (data.excerpt !== undefined) normalizedData.excerpt = data.excerpt || undefined;
+    if (data.registration_link !== undefined) normalizedData.registration_link = data.registration_link || undefined;
+    if (data.image_file !== undefined) normalizedData.image_file = data.image_file;
+    if (data.notion_content !== undefined) normalizedData.notion_content = data.notion_content || undefined;
+    if (data.is_visible !== undefined) normalizedData.is_visible = data.is_visible;
+    if (data.category_id !== undefined) normalizedData.category_id = data.category_id || undefined;
+
+    if (Array.isArray(data.speakers)) {
+      normalizedData.speakers = data.speakers.filter((speaker: any) => typeof speaker?.name === 'string' && speaker.name.trim());
+    }
+
+    if (Array.isArray(data.schedules)) {
+      normalizedData.schedules = data.schedules.filter((schedule: any) => typeof schedule?.title === 'string' && schedule.title.trim());
+    }
+
+    if (data.speaker_avatar_images !== undefined) normalizedData.speaker_avatar_images = data.speaker_avatar_images || undefined;
+    if (data.slug !== undefined) normalizedData.slug = (typeof data.slug === 'string' ? data.slug.trim() : data.slug) || undefined;
+
     return normalizedData;
   }, []);
 
@@ -323,11 +336,11 @@ export const useEvent = (): UseEventReturn => {
     // Data
     events,
     categories,
-    
+
     // Loading states
     loading,
     categoriesLoading,
-    
+
     // Pagination
     currentPage,
     itemsPerPage,
@@ -335,12 +348,12 @@ export const useEvent = (): UseEventReturn => {
     startIndex,
     endIndex,
     currentEvents,
-    
+
     // Filters
     selectedCategory,
     searchQuery,
     sortBy,
-    
+
     // Actions
     setCurrentPage,
     setItemsPerPage,
@@ -353,7 +366,7 @@ export const useEvent = (): UseEventReturn => {
     createEvent,
     updateEvent,
     getEventByUuid,
-    
+
     // Form management functions
     handleInputChange,
     handleImageUpload,
