@@ -217,8 +217,8 @@ export const useBlog = (): UseBlogReturn => {
   useEffect(() => {
     fetchBlogs();
     fetchCategories();
-    fetchTags();
-  }, [fetchBlogs, fetchCategories, fetchTags]);
+    // fetchTags();
+  }, [fetchBlogs, fetchCategories]);
 
   useEffect(() => {
     setCurrentPage(1);
