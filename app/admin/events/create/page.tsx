@@ -90,6 +90,9 @@ export default function AdminEventCreatePage() {
   const [uploading, setUploading] = useState(false);
   const [uploadedHtmlFile, setUploadedHtmlFile] = useState<string | null>(null);
 
+  // Add state to track speaker avatar files
+  const [speakerAvatarFiles, setSpeakerAvatarFiles] = useState<(File | null)[]>([]);
+
   const handleInputChange = (field: string, value: any) => {
     hookHandleInputChange(field, value, formData, setFormData);
 
@@ -119,7 +122,23 @@ export default function AdminEventCreatePage() {
       }
       
       console.log("Creating event:", formData.title);
-      await createEvent(hookNormalizeEventData(formData));
+
+      // Prepare event data
+      const eventData = hookNormalizeEventData(formData);
+
+      // Add speaker avatar files mapping (for create, use index since no IDs yet)
+      const speakerAvatarMapping: { [key: number]: File } = {};
+      speakerAvatarFiles.forEach((file, index) => {
+        if (file) {
+          speakerAvatarMapping[index] = file;
+        }
+      });
+
+      if (Object.keys(speakerAvatarMapping).length > 0) {
+        eventData.speaker_avatar_images = speakerAvatarMapping;
+      }
+
+      await createEvent(eventData);
 
       toast.success("Event created successfully");
       
@@ -136,10 +155,12 @@ export default function AdminEventCreatePage() {
 
   const handleAddSpeaker = () => {
     hookHandleAddSpeaker(formData, setFormData);
+    setSpeakerAvatarFiles((prev) => [...prev, null]);
   };
 
   const handleDeleteSpeaker = (index: number) => {
     hookHandleDeleteSpeaker(index, formData, setFormData);
+    setSpeakerAvatarFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSpeakerChange = (index: number, field: keyof Speaker, value: any) => {
@@ -557,6 +578,12 @@ export default function AdminEventCreatePage() {
                               const reader = new FileReader();
                               reader.onloadend = () => {
                                 handleSpeakerChange(index, "avatar_img", reader.result as string);
+                                // Store actual File object for upload
+                                setSpeakerAvatarFiles((prev) => {
+                                  const next = [...prev];
+                                  next[index] = file;
+                                  return next;
+                                });
                               };
                               reader.readAsDataURL(file);
                             }
