@@ -1,5 +1,5 @@
 // API Endpoints Configuration for ShopNest
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://undefined.com/api';
 // export const API_BASE_URL = 'http://localhost:4000/api';
 export const EVENT_ENDPOINTS = {
     GET_ALL: '/events/get-all',           // GET - Public: Get all events with optional sorting and limiting
