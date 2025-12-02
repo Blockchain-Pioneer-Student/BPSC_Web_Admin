@@ -162,10 +162,17 @@ export class BaseApiService {
       if (error.status === 401 && params.requiresAuth) {
         console.log(`⚠️ Got 401 Unauthorized on ${params.endpoint}`);
 
+        // 🚫 DON'T RETRY OR LOGOUT IF ON LOGIN PAGE
+        const isOnLoginPage = typeof window !== 'undefined' && window.location.pathname.includes('/login');
+        if (isOnLoginPage) {
+          console.log('🚫 On login page, not handling 401');
+          throw error;
+        }
+
         // 🚫 DON'T RETRY AUTH ENDPOINTS
         const isAuthEndpoint = params.endpoint.includes('/auth/');
         if (isAuthEndpoint) {
-          console.log('� Auth endpoint failed, not retrying');
+          console.log('🚫 Auth endpoint failed, not retrying');
           this.handleAuthenticationFailure(error.message || 'Authentication failed');
           throw error;
         }
@@ -219,6 +226,12 @@ export class BaseApiService {
    */
   private handleAuthenticationFailure(message: string): void {
     console.log(`🔐 Authentication failure: ${message}`);
+    
+    // Don't handle auth failure if already on login page
+    if (typeof window !== 'undefined' && window.location.pathname.includes('/login')) {
+      console.log('🚫 Already on login page, skipping auth failure handling');
+      return;
+    }
     
     // 1️⃣ CLEAR USER STATE
     store.dispatch(logout());
