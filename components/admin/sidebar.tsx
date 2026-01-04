@@ -37,16 +37,6 @@ import {
 
 const menuItems = [
   {
-    title: "📊 DASHBOARD",
-    items: [
-      {
-        title: "Overview",
-        href: "/admin",
-        icon: BarChart3,
-      },
-    ],
-  },
-  {
     title: "�️ ORGANIZATION",
     items: [
       {
@@ -58,11 +48,6 @@ const menuItems = [
         title: "Boards",
         href: "/admin/boards",
         icon: Folders,
-      },
-      {
-        title: "Blockchain Areas",
-        href: "/admin/blockchain-areas",
-        icon: Hash,
       },
     ],
   },
@@ -81,16 +66,7 @@ const menuItems = [
       },
     ],
   },
-  {
-    title: "🤝 PARTNERS",
-    items: [
-      {
-        title: "All Partners",
-        href: "/admin/partners",
-        icon: Handshake,
-      },
-    ],
-  },
+ 
   {
     title: "� CONTACT",
     items: [
