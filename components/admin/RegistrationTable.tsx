@@ -32,6 +32,8 @@ interface RegistrationTableProps {
   filterByUniversity: string;
   filterByDivision: string;
   filterByYear: string;
+  filterByCampaign: string;
+  filterByStatus: string;
 }
 
 export function RegistrationTable({
@@ -42,6 +44,8 @@ export function RegistrationTable({
   filterByUniversity,
   filterByDivision,
   filterByYear,
+  filterByCampaign,
+  filterByStatus,
 }: RegistrationTableProps) {
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('vi-VN', {
@@ -56,7 +60,9 @@ export function RegistrationTable({
   const hasActiveFilters = searchTerm || 
     (filterByUniversity && filterByUniversity !== "all") || 
     (filterByDivision && filterByDivision !== "all") || 
-    (filterByYear && filterByYear !== "all");
+    (filterByYear && filterByYear !== "all") ||
+    (filterByCampaign && filterByCampaign !== "all") ||
+    (filterByStatus && filterByStatus !== "all");
 
   return (
     <div className="overflow-x-auto">
@@ -69,6 +75,8 @@ export function RegistrationTable({
             <TableHead>University</TableHead>
             <TableHead>Division</TableHead>
             <TableHead>Year</TableHead>
+            <TableHead>Campaign</TableHead>
+            <TableHead>Status</TableHead>
             <TableHead>Blockchain Areas</TableHead>
             <TableHead>Registered</TableHead>
             <TableHead className="text-right">Actions</TableHead>
@@ -77,7 +85,7 @@ export function RegistrationTable({
         <TableBody>
           {registrations.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={9} className="text-center py-12">
+              <TableCell colSpan={11} className="text-center py-12">
                 <div className="flex flex-col items-center justify-center">
                   <div className="text-gray-500 text-lg mb-2">
                     {hasActiveFilters 
@@ -138,6 +146,17 @@ export function RegistrationTable({
                 <TableCell>
                   <Badge className="bg-blue-100 text-blue-800 border-blue-200">
                     Year {registration.year_of_study}
+                  </Badge>
+                </TableCell>
+                <TableCell className="text-sm">
+                  {registration.campaign?.title || "Legacy / Unassigned"}
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="text-xs">
+                    {registration.status === "needs_info"
+                      ? "Needs Info"
+                      : registration.status.charAt(0).toUpperCase() +
+                        registration.status.slice(1)}
                   </Badge>
                 </TableCell>
                 <TableCell>

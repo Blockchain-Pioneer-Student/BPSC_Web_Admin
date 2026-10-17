@@ -1,51 +1,58 @@
-import { API_BASE_URL, buildEndpoint } from '@/config/enpoints';
+import { BaseApiService } from './baseApiService';
 
-interface Partner {
+export type PartnerType =
+  | 'academic'
+  | 'business'
+  | 'community'
+  | 'government'
+  | 'technology';
+
+export type PartnerStatus = 'active' | 'inactive' | 'pending';
+
+export interface Partner {
   id: number;
   name: string;
   logo: string;
-  type: 'academic' | 'business' | 'community' | 'government' | 'technology';
+  type: PartnerType;
   description: string;
   website?: string;
   email?: string;
   phone?: string;
   address?: string;
-  status: 'active' | 'inactive' | 'pending';
+  display_order: number;
+  status: PartnerStatus;
   created_at: string;
   updated_at: string;
 }
 
-class PartnerService {
-  private readonly baseURL: string;
+export type PartnerPayload = Omit<
+  Partner,
+  'id' | 'created_at' | 'updated_at'
+>;
 
-  constructor() {
-    this.baseURL = API_BASE_URL;
+class PartnerService extends BaseApiService {
+  getAllPartners(): Promise<Partner[]> {
+    return this.get<Partner[]>('/partners/admin/all');
   }
 
-  async getAllPartners(): Promise<Partner[]> {
-    try {
-      const endpoint = buildEndpoint.events.partners.getAll();
-      const url = `${this.baseURL}${endpoint}`;
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+  getPartnerById(id: number): Promise<Partner> {
+    return this.get<Partner>(`/partners/${id}`);
+  }
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
+  createPartner(payload: PartnerPayload): Promise<Partner> {
+    return this.post<Partner>('/partners', payload);
+  }
 
-      const data: Partner[] = await response.json();
-      return data;
-    } catch (error) {
-      console.error('Error fetching partners:', error);
-      throw error;
-    }
+  updatePartner(
+    id: number,
+    payload: Partial<PartnerPayload>,
+  ): Promise<Partner> {
+    return this.patch<Partner>(`/partners/${id}`, payload);
+  }
+
+  deletePartner(id: number): Promise<{ success: boolean }> {
+    return this.delete<{ success: boolean }>(`/partners/${id}`);
   }
 }
 
 export const partnerService = new PartnerService();
-export type { Partner };

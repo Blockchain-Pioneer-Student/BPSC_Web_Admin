@@ -27,6 +27,8 @@ export default function RegistrationsPage() {
   const [filterByUniversity, setFilterByUniversity] = useState("all");
   const [filterByDivision, setFilterByDivision] = useState("all");
   const [filterByYear, setFilterByYear] = useState("all");
+  const [filterByCampaign, setFilterByCampaign] = useState("all");
+  const [filterByStatus, setFilterByStatus] = useState("all");
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -49,11 +51,11 @@ export default function RegistrationsPage() {
   const fetchRegistrations = async () => {
     try {
       setLoading(true);
-      const [registrationsResponse, statsData] = await Promise.all([
-        registrationService.getAllRegistrations(),
-        registrationService.getRegistrationsStats()
-      ]);
-      
+      const registrationsResponse = await registrationService.getAllRegistrations();
+      const statsData = registrationService.calculateRegistrationsStats(
+        registrationsResponse.data,
+      );
+
       setRegistrations(registrationsResponse.data);
       setFilteredRegistrations(registrationsResponse.data);
       setStats(statsData);
@@ -95,9 +97,29 @@ export default function RegistrationsPage() {
       filtered = filtered.filter(reg => reg.year_of_study.toString() === filterByYear);
     }
 
+    if (filterByCampaign === "legacy") {
+      filtered = filtered.filter(reg => !reg.campaign_id);
+    } else if (filterByCampaign !== "all") {
+      filtered = filtered.filter(
+        reg => reg.campaign_id?.toString() === filterByCampaign,
+      );
+    }
+
+    if (filterByStatus !== "all") {
+      filtered = filtered.filter(reg => reg.status === filterByStatus);
+    }
+
     setFilteredRegistrations(filtered);
     setCurrentPage(1); // Reset to first page when filters change
-  }, [registrations, searchTerm, filterByUniversity, filterByDivision, filterByYear]);
+  }, [
+    registrations,
+    searchTerm,
+    filterByUniversity,
+    filterByDivision,
+    filterByYear,
+    filterByCampaign,
+    filterByStatus,
+  ]);
 
   // Pagination calculations
   const totalPages = Math.ceil(filteredRegistrations.length / itemsPerPage);
@@ -109,6 +131,13 @@ export default function RegistrationsPage() {
   const universities = Array.from(new Set(registrations.map(reg => reg.university))).sort();
   const divisions = Array.from(new Set(registrations.map(reg => reg.division))).sort();
   const years = Array.from(new Set(registrations.map(reg => reg.year_of_study))).sort();
+  const campaigns = Array.from(
+    new Map(
+      registrations
+        .filter((reg) => reg.campaign)
+        .map((reg) => [reg.campaign!.id, reg.campaign!]),
+    ).values(),
+  ).sort((a, b) => a.title.localeCompare(b.title));
 
   // Handle view details
   const handleViewDetails = (registration: Registration) => {
@@ -135,6 +164,8 @@ export default function RegistrationsPage() {
     setFilterByUniversity("all");
     setFilterByDivision("all");
     setFilterByYear("all");
+    setFilterByCampaign("all");
+    setFilterByStatus("all");
     setCurrentPage(1);
   };
 
@@ -235,6 +266,11 @@ export default function RegistrationsPage() {
                 setFilterByDivision={setFilterByDivision}
                 filterByYear={filterByYear}
                 setFilterByYear={setFilterByYear}
+                filterByCampaign={filterByCampaign}
+                setFilterByCampaign={setFilterByCampaign}
+                filterByStatus={filterByStatus}
+                setFilterByStatus={setFilterByStatus}
+                campaigns={campaigns}
                 universities={universities}
                 divisions={divisions}
                 years={years}
@@ -260,6 +296,8 @@ export default function RegistrationsPage() {
                 filterByUniversity={filterByUniversity}
                 filterByDivision={filterByDivision}
                 filterByYear={filterByYear}
+                filterByCampaign={filterByCampaign}
+                filterByStatus={filterByStatus}
               />
               
               {/* Pagination */}

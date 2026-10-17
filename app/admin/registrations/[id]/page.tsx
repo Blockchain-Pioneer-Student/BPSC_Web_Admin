@@ -16,13 +16,19 @@ import {
   Building,
   Calendar,
   FileText,
-  MapPin,
   Award,
   Clock
 } from "lucide-react";
-import { registrationService, Registration } from "@/lib/services/registrationService";
+import { registrationService, Registration, RegistrationStatus } from "@/lib/services/registrationService";
 import { toast } from "sonner";
 import Link from "next/link";
+
+const statusLabels: Record<RegistrationStatus, string> = {
+  pending: "Pending Review",
+  approved: "Approved",
+  rejected: "Rejected",
+  needs_info: "Needs More Info",
+};
 
 export default function RegistrationDetailsPage() {
   const params = useParams();
@@ -32,6 +38,7 @@ export default function RegistrationDetailsPage() {
   // State
   const [registration, setRegistration] = useState<Registration | null>(null);
   const [loading, setLoading] = useState(true);
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   // Fetch registration details
   const fetchRegistrationDetails = useCallback(async () => {
@@ -42,7 +49,7 @@ export default function RegistrationDetailsPage() {
     } catch (error) {
       console.error("Error fetching registration details:", error);
       toast.error("Unable to load registration details");
-      router.push("/admin/members/registrations");
+      router.push("/admin/registrations");
     } finally {
       setLoading(false);
     }
@@ -51,12 +58,31 @@ export default function RegistrationDetailsPage() {
   useEffect(() => {
     if (!registrationId || isNaN(registrationId)) {
       toast.error("Invalid registration ID");
-      router.push("/admin/members/registrations");
+      router.push("/admin/registrations");
       return;
     }
 
     fetchRegistrationDetails();
   }, [registrationId, router, fetchRegistrationDetails]);
+
+  const handleStatusChange = async (status: RegistrationStatus) => {
+    if (!registration) return;
+
+    try {
+      setStatusUpdating(true);
+      const updated = await registrationService.updateRegistrationStatus(
+        registration.id,
+        status,
+      );
+      setRegistration(updated);
+      toast.success(`Application marked as ${statusLabels[status]}`);
+    } catch (error) {
+      console.error("Error updating registration status:", error);
+      toast.error("Unable to update application status");
+    } finally {
+      setStatusUpdating(false);
+    }
+  };
 
   // Format date
   const formatDate = (dateString: string) => {
@@ -335,10 +361,19 @@ export default function RegistrationDetailsPage() {
                   <Separator />
                   
                   <div>
+                    <label className="text-sm font-medium text-gray-500">Campaign</label>
+                    <p className="text-sm">
+                      {registration.campaign?.title || "Legacy / unassigned"}
+                    </p>
+                  </div>
+
+                  <Separator />
+
+                  <div>
                     <label className="text-sm font-medium text-gray-500">Status</label>
                     <div className="mt-1">
-                      <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                        Pending Review
+                      <Badge variant="outline">
+                        {statusLabels[registration.status] || registration.status}
                       </Badge>
                     </div>
                   </div>
@@ -384,15 +419,40 @@ export default function RegistrationDetailsPage() {
                   <CardTitle>Actions</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  <Button className="w-full" variant="default">
+                  <Button
+                    className="w-full"
+                    variant="default"
+                    disabled={statusUpdating}
+                    onClick={() => void handleStatusChange("approved")}
+                  >
                     Approve Registration
                   </Button>
-                  <Button className="w-full" variant="outline">
+                  <Button
+                    className="w-full"
+                    variant="outline"
+                    disabled={statusUpdating}
+                    onClick={() => void handleStatusChange("needs_info")}
+                  >
                     Request More Info
                   </Button>
-                  <Button className="w-full" variant="destructive">
+                  <Button
+                    className="w-full"
+                    variant="destructive"
+                    disabled={statusUpdating}
+                    onClick={() => void handleStatusChange("rejected")}
+                  >
                     Reject Registration
                   </Button>
+                  {registration.status !== "pending" && (
+                    <Button
+                      className="w-full"
+                      variant="ghost"
+                      disabled={statusUpdating}
+                      onClick={() => void handleStatusChange("pending")}
+                    >
+                      Reset to Pending
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </div>

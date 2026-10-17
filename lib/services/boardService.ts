@@ -4,26 +4,28 @@ interface Board {
   id: number;
   name: string;
   description?: string;
+  display_order: number;
+  is_visible: boolean;
 }
 
 interface CreateBoardData {
   name: string;
   description?: string;
+  display_order?: number;
+  is_visible?: boolean;
 }
 
 interface UpdateBoardData {
   name?: string;
   description?: string;
+  display_order?: number;
+  is_visible?: boolean;
 }
 
 class BoardService extends BaseApiService {
-  constructor() {
-    super();
-  }
-
   async getAllBoards(): Promise<Board[]> {
     try {
-      return this.makeRequest('/boards');
+      return this.makeRequest('/boards/admin/all');
     } catch (error) {
       console.error('Error getting all boards:', error);
       throw error;

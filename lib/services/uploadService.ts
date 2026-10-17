@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '@/config/enpoints';
+import { tokenRefreshService } from './tokenRefresh';
 
 export interface UploadResponse {
   url: string;
@@ -28,10 +29,22 @@ export class UploadService {
       formData.append('file', file);
 
       // Upload to backend
-      const response = await fetch(`${this.baseUrl}/upload`, {
+      let response = await fetch(`${this.baseUrl}/upload`, {
         method: 'POST',
         body: formData,
+        credentials: 'include',
       });
+
+      if (response.status === 401) {
+        const refreshed = await tokenRefreshService.manualRefresh();
+        if (refreshed) {
+          response = await fetch(`${this.baseUrl}/upload`, {
+            method: 'POST',
+            body: formData,
+            credentials: 'include',
+          });
+        }
+      }
 
       if (!response.ok) {
         const errorData = await response.json();

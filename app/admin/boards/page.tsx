@@ -8,13 +8,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogTrigger,
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
@@ -35,7 +35,6 @@ import {
   Search,
   Folders,
   Save,
-  X,
   Loader2
 } from "lucide-react";
 import { boardService, type Board, type CreateBoardData, type UpdateBoardData } from "@/lib/services/boardService";
@@ -50,7 +49,6 @@ export default function AdminBoardsPage() {
   // Dialog states
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   // Form states
   const [formLoading, setFormLoading] = useState(false);
@@ -58,6 +56,8 @@ export default function AdminBoardsPage() {
   const [formData, setFormData] = useState({
     name: "",
     description: "",
+    display_order: 1000,
+    is_visible: true,
   });
 
   // Fetch boards
@@ -89,6 +89,8 @@ export default function AdminBoardsPage() {
     setFormData({
       name: "",
       description: "",
+      display_order: 1000,
+      is_visible: true,
     });
     setSelectedBoard(null);
   };
@@ -105,14 +107,10 @@ export default function AdminBoardsPage() {
     setFormData({
       name: board.name,
       description: board.description || "",
+      display_order: board.display_order > 0 ? board.display_order : 1000,
+      is_visible: board.is_visible ?? true,
     });
     setEditDialogOpen(true);
-  };
-
-  // Handle delete board
-  const handleDelete = (board: Board) => {
-    setSelectedBoard(board);
-    setDeleteDialogOpen(true);
   };
 
   // Submit create form
@@ -129,7 +127,9 @@ export default function AdminBoardsPage() {
       
       const createData: CreateBoardData = {
         name: formData.name.trim(),
-        description: formData.description.trim() || undefined,
+        description: formData.description.trim(),
+        display_order: formData.display_order,
+        is_visible: formData.is_visible,
       };
 
       await boardService.createBoard(createData);
@@ -160,7 +160,9 @@ export default function AdminBoardsPage() {
       
       const updateData: UpdateBoardData = {
         name: formData.name.trim(),
-        description: formData.description.trim() || undefined,
+        description: formData.description.trim(),
+        display_order: formData.display_order,
+        is_visible: formData.is_visible,
       };
 
       await boardService.updateBoard(selectedBoard.id, updateData);
@@ -185,7 +187,6 @@ export default function AdminBoardsPage() {
       await boardService.deleteBoard(selectedBoard.id);
       toast.success("Board deleted successfully!");
       
-      setDeleteDialogOpen(false);
       setSelectedBoard(null);
       fetchBoards();
     } catch (error: any) {
@@ -273,9 +274,11 @@ export default function AdminBoardsPage() {
                 <CardTitle className="flex items-start justify-between">
                   <div>
                     <h3 className="font-semibold">{board.name}</h3>
-                    <Badge variant="outline" className="mt-1">
-                      ID: {board.id}
-                    </Badge>
+                    <div className="mt-1 flex flex-wrap gap-2">
+                      <Badge variant="outline">ID: {board.id}</Badge>
+                      <Badge variant="outline">Order: {board.display_order ?? 0}</Badge>
+                      {!board.is_visible && <Badge variant="secondary">Hidden</Badge>}
+                    </div>
                   </div>
                 </CardTitle>
                 {board.description && (
@@ -370,6 +373,24 @@ export default function AdminBoardsPage() {
                   rows={3}
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="create-order">Display order</Label>
+                <Input
+                  id="create-order"
+                  type="number"
+                  min={1}
+                  value={formData.display_order}
+                  onChange={(e) => setFormData(prev => ({ ...prev, display_order: Number(e.target.value) || 0 }))}
+                />
+              </div>
+              <div className="flex items-center justify-between rounded-md border p-3">
+                <Label htmlFor="create-visible">Visible on public site</Label>
+                <Switch
+                  id="create-visible"
+                  checked={formData.is_visible}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_visible: checked }))}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button
@@ -430,6 +451,24 @@ export default function AdminBoardsPage() {
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Enter board description (optional)"
                   rows={3}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-order">Display order</Label>
+                <Input
+                  id="edit-order"
+                  type="number"
+                  min={1}
+                  value={formData.display_order}
+                  onChange={(e) => setFormData(prev => ({ ...prev, display_order: Number(e.target.value) || 0 }))}
+                />
+              </div>
+              <div className="flex items-center justify-between rounded-md border p-3">
+                <Label htmlFor="edit-visible">Visible on public site</Label>
+                <Switch
+                  id="edit-visible"
+                  checked={formData.is_visible}
+                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_visible: checked }))}
                 />
               </div>
             </div>

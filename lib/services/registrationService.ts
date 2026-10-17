@@ -1,7 +1,4 @@
-import { store } from '../store';
-import { logout } from '../store/authSlice';
 import { BaseApiService } from './baseApiService';
-import { API_BASE_URL } from '../../config/enpoints';
 
 export interface BlockchainArea {
   id: number;
@@ -17,8 +14,24 @@ export interface RegistrationBlockchainArea {
   blockchainArea: BlockchainArea;
 }
 
+export type RegistrationStatus =
+  | 'pending'
+  | 'approved'
+  | 'rejected'
+  | 'needs_info';
+
+export interface RegistrationCampaign {
+  id: number;
+  title: string;
+  slug: string;
+  status: string;
+}
+
 export interface Registration {
   id: number;
+  campaign_id?: number;
+  campaign?: RegistrationCampaign;
+  status: RegistrationStatus;
   full_name: string;
   student_id: string;
   email: string;
@@ -34,6 +47,7 @@ export interface Registration {
 }
 
 export interface CreateRegistrationDto {
+  campaign_id?: number;
   full_name: string;
   student_id: string;
   email: string;
@@ -87,14 +101,7 @@ class RegistrationService extends BaseApiService {
    * Get registration by ID (Admin only)
    */
   async getRegistrationById(id: number): Promise<Registration> {
-    const response = await this.getAllRegistrations();
-    const registration = response.data.find(reg => reg.id === id);
-    
-    if (!registration) {
-      throw new Error('Registration not found');
-    }
-    
-    return registration;
+    return this.makeRequest(`/registrations/${id}`);
   }
 
   /**
@@ -116,6 +123,16 @@ class RegistrationService extends BaseApiService {
       registration.major.toLowerCase().includes(term) ||
       registration.division.toLowerCase().includes(term)
     );
+  }
+
+  async updateRegistrationStatus(
+    id: number,
+    status: RegistrationStatus,
+  ): Promise<Registration> {
+    return this.makeRequest(`/registrations/${id}/status`, {
+      method: 'PATCH',
+      body: { status },
+    });
   }
 
   /**
@@ -140,16 +157,13 @@ class RegistrationService extends BaseApiService {
   /**
    * Get registrations statistics
    */
-  async getRegistrationsStats(): Promise<{
+  calculateRegistrationsStats(registrations: Registration[]): {
     total: number;
     byUniversity: Record<string, number>;
     byDivision: Record<string, number>;
     byYearOfStudy: Record<number, number>;
     byBlockchainArea: Record<string, number>;
-  }> {
-    const response = await this.getAllRegistrations();
-    const registrations = response.data;
-
+  } {
     const stats = {
       total: registrations.length,
       byUniversity: {} as Record<string, number>,

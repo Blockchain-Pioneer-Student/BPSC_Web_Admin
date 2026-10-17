@@ -14,30 +14,20 @@ import {
   User,
   Home,
   LogOut,
-  BarChart3,
-  Users,
   UserPlus,
-  Shield,
   Newspaper,
-  FileText,
-  Image,
   Handshake,
-  Building2,
   MessageSquare,
   Bell,
   Settings,
-  Database,
   ChevronDown,
   ChevronRight,
-  Menu,
   Folders,
-  Hash,
-  MapPin,
 } from "lucide-react";
 
 const menuItems = [
   {
-    title: "�️ ORGANIZATION",
+    title: "ORGANIZATION",
     items: [
       {
         title: "Members",
@@ -52,12 +42,33 @@ const menuItems = [
     ],
   },
   {
-    title: "🎪 EVENTS",
+    title: "WEBSITE CONTENT",
+    items: [
+      {
+        title: "Site Content",
+        href: "/admin/site-content",
+        icon: Settings,
+      },
+      {
+        title: "Partners",
+        href: "/admin/partners",
+        icon: Handshake,
+      },
+    ],
+  },
+ 
+  {
+    title: "EVENTS",
     items: [
       {
         title: "All Events",
         href: "/admin/events",
         icon: Calendar,
+      },
+      {
+        title: "Recruitment Campaigns",
+        href: "/admin/recruitment",
+        icon: Bell,
       },
       {
         title: "Registrations",
@@ -68,7 +79,7 @@ const menuItems = [
   },
  
   {
-    title: "� CONTACT",
+    title: "CONTACT",
     items: [
       {
         title: "Contact Messages",
@@ -78,7 +89,7 @@ const menuItems = [
     ],
   },
   {
-    title: "📝 BLOGS",
+    title: "BLOGS",
     items: [
       {
         title: "All Blogs",
@@ -95,14 +106,11 @@ export function AdminSidebar() {
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const [expandedGroups, setExpandedGroups] = useState<string[]>([
-    "📊 DASHBOARD", 
-    "👥 USER MANAGEMENT",
-    "�️ ORGANIZATION",
-    "🎪 EVENTS",
-    "🤝 PARTNERS",
-    "� CONTACT",
-    "� FILE MANAGEMENT",
-    "⚙️ SETTINGS"
+    "ORGANIZATION",
+    "WEBSITE CONTENT",
+    "EVENTS",
+    "CONTACT",
+    "BLOGS",
   ]); // All groups expanded by default for collapsed state
   const [isHovered, setIsHovered] = useState(false);
 

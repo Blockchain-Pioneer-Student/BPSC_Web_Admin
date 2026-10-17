@@ -20,6 +20,11 @@ interface RegistrationFiltersProps {
   setFilterByDivision: (value: string) => void;
   filterByYear: string;
   setFilterByYear: (value: string) => void;
+  filterByCampaign: string;
+  setFilterByCampaign: (value: string) => void;
+  filterByStatus: string;
+  setFilterByStatus: (value: string) => void;
+  campaigns: Array<{ id: number; title: string }>;
   universities: string[];
   divisions: string[];
   years: number[];
@@ -36,6 +41,11 @@ export function RegistrationFilters({
   setFilterByDivision,
   filterByYear,
   setFilterByYear,
+  filterByCampaign,
+  setFilterByCampaign,
+  filterByStatus,
+  setFilterByStatus,
+  campaigns,
   universities,
   divisions,
   years,
@@ -43,7 +53,7 @@ export function RegistrationFilters({
   onExport,
 }: RegistrationFiltersProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-7 gap-4">
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -97,6 +107,34 @@ export function RegistrationFilters({
               Year {year}
             </SelectItem>
           ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={filterByCampaign} onValueChange={setFilterByCampaign}>
+        <SelectTrigger>
+          <SelectValue placeholder="All Campaigns" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Campaigns</SelectItem>
+          <SelectItem value="legacy">Legacy / Unassigned</SelectItem>
+          {campaigns.map((campaign) => (
+            <SelectItem key={campaign.id} value={campaign.id.toString()}>
+              {campaign.title}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+
+      <Select value={filterByStatus} onValueChange={setFilterByStatus}>
+        <SelectTrigger>
+          <SelectValue placeholder="All Statuses" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All Statuses</SelectItem>
+          <SelectItem value="pending">Pending</SelectItem>
+          <SelectItem value="approved">Approved</SelectItem>
+          <SelectItem value="needs_info">Needs More Info</SelectItem>
+          <SelectItem value="rejected">Rejected</SelectItem>
         </SelectContent>
       </Select>
 

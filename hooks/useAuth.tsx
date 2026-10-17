@@ -68,7 +68,7 @@ export const useAuth = () => {
 
   // Check if user is admin
   const isAdmin = useCallback(() => {
-    return user?.role === 'admin';
+    return user?.role === 'admin' || user?.role === 'root';
   }, [user]);
 
   return {
