@@ -13,12 +13,12 @@ export default function AdminLayout({
       <SiteHeader />
       <div className="flex min-h-screen bg-gray-50">
         <AdminSidebar />
-        <main className="flex-1">
+        <main className="min-w-0 flex-1">
           {children}
         </main>
+        <PublicPreview />
       </div>
       <SiteFooter />
-      <PublicPreview />
     </AdminRouteGuard>
   );
 }
