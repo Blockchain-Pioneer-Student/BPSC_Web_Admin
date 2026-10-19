@@ -18,7 +18,7 @@ export function PublicPreview() {
 
   return (
     <aside
-      className="sticky top-16 hidden h-[calc(100vh-4rem)] w-[min(420px,34vw)] min-w-[320px] shrink-0 flex-col overflow-hidden border-l border-slate-200 bg-white xl:flex"
+      className="sticky top-16 hidden h-[calc(100vh-4rem)] w-[min(580px,40vw)] min-w-[420px] shrink-0 flex-col overflow-hidden border-l border-slate-200 bg-white xl:flex"
       aria-label="Bản xem trước website công khai"
     >
       <div className="flex h-14 shrink-0 items-center justify-between border-b border-slate-200 bg-slate-950 px-4 text-white">
@@ -59,7 +59,12 @@ export function PublicPreview() {
             key={previewUrl}
             src={previewUrl}
             title="Bản xem trước website công khai"
-            className="h-full w-full bg-slate-50"
+            className="origin-top-left bg-slate-50"
+            style={{
+              width: "217.4%",
+              height: "217.4%",
+              transform: "scale(0.46)",
+            }}
           />
         </div>
       </div>
