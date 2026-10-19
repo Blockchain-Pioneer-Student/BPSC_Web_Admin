@@ -221,7 +221,7 @@ export default function AdminBoardsPage() {
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search boards..."
+              placeholder="Tìm theo tên ban..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -277,7 +277,7 @@ export default function AdminBoardsPage() {
                     <div className="mt-1 flex flex-wrap gap-2">
                       <Badge variant="outline">ID: {board.id}</Badge>
                       <Badge variant="outline">Order: {board.display_order ?? 0}</Badge>
-                      {!board.is_visible && <Badge variant="secondary">Hidden</Badge>}
+                      {!board.is_visible && <Badge variant="secondary">Đang ẩn</Badge>}
                     </div>
                   </div>
                 </CardTitle>
@@ -312,14 +312,14 @@ export default function AdminBoardsPage() {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Board</AlertDialogTitle>
+                        <AlertDialogTitle>Xóa ban</AlertDialogTitle>
                         <AlertDialogDescription>
                           Are you sure you want to delete &ldquo;<strong>{board.name}</strong>&rdquo;? 
                           This action cannot be undone and may affect members assigned to this board.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>Hủy</AlertDialogCancel>
                         <AlertDialogAction 
                           onClick={handleDeleteConfirm}
                           className="bg-red-600 hover:bg-red-700"
@@ -359,17 +359,17 @@ export default function AdminBoardsPage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Enter board name"
+                  placeholder="Ví dụ: Ban chuyên môn"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="create-description">Description</Label>
+                <Label htmlFor="create-description">Mô tả</Label>
                 <Textarea
                   id="create-description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter board description (optional)"
+                  placeholder="Mô tả ngắn về nhiệm vụ của ban (không bắt buộc)"
                   rows={3}
                 />
               </div>
@@ -384,7 +384,7 @@ export default function AdminBoardsPage() {
                 />
               </div>
               <div className="flex items-center justify-between rounded-md border p-3">
-                <Label htmlFor="create-visible">Visible on public site</Label>
+                <Label htmlFor="create-visible">Hiển thị trên website</Label>
                 <Switch
                   id="create-visible"
                   checked={formData.is_visible}
@@ -439,17 +439,17 @@ export default function AdminBoardsPage() {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  placeholder="Enter board name"
+                  placeholder="Ví dụ: Ban chuyên môn"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="edit-description">Description</Label>
+                <Label htmlFor="edit-description">Mô tả</Label>
                 <Textarea
                   id="edit-description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Enter board description (optional)"
+                  placeholder="Mô tả ngắn về nhiệm vụ của ban (không bắt buộc)"
                   rows={3}
                 />
               </div>
@@ -464,7 +464,7 @@ export default function AdminBoardsPage() {
                 />
               </div>
               <div className="flex items-center justify-between rounded-md border p-3">
-                <Label htmlFor="edit-visible">Visible on public site</Label>
+                <Label htmlFor="edit-visible">Hiển thị trên website</Label>
                 <Switch
                   id="edit-visible"
                   checked={formData.is_visible}

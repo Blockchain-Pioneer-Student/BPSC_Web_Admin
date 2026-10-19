@@ -42,7 +42,7 @@ class TokenRefreshService {
    */
   private async doRefreshToken(): Promise<boolean> {
     try {
-      const response = await fetch(`${API_BASE_URL}/core/auth/refresh`, {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -105,7 +105,7 @@ class TokenRefreshService {
    */
   private async clearTokens() {
     try {
-      await fetch(`${API_BASE_URL}/core/auth/clear-cookie`, {
+      await fetch(`${API_BASE_URL}/auth/clear-cookie`, {
         method: 'POST',
         credentials: 'include',
       });

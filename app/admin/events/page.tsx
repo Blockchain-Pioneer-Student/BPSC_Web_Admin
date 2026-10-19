@@ -100,17 +100,17 @@ export default function AdminEventsPage() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Event Management
+            Quản lý sự kiện
           </h1>
           <p className="text-gray-600">
-            Manage and track all club events
+            Theo dõi và cập nhật toàn bộ sự kiện của câu lạc bộ
           </p>
         </div>
 
         {/* Filters */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-lg">Filter and Search</CardTitle>
+            <CardTitle className="text-lg">Lọc và tìm kiếm</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -118,7 +118,7 @@ export default function AdminEventsPage() {
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                 <Input
-                  placeholder="Search events..."
+                  placeholder="Tìm theo tên sự kiện..."
                   value={searchQuery}
                   onChange={(e) => handleSearch(e.target.value)}
                   className="pl-10"
@@ -128,13 +128,13 @@ export default function AdminEventsPage() {
               {/* Category Filter */}
               <Select value={selectedCategory} onValueChange={setSelectedCategory}>
                 <SelectTrigger>
-                  <SelectValue placeholder="All Categories" />
+                  <SelectValue placeholder="Tất cả loại sự kiện" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
+                    <SelectItem value="all">Tất cả loại sự kiện</SelectItem>
                   {categoriesLoading ? (
                     <SelectItem value="loading" disabled>
-                      Loading...
+                      Đang tải...
                     </SelectItem>
                   ) : (
                     categories.map((category) => (
@@ -152,12 +152,12 @@ export default function AdminEventsPage() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="created_at_DESC">Newest</SelectItem>
-                  <SelectItem value="created_at_ASC">Oldest</SelectItem>
-                  <SelectItem value="date_DESC">Event Date (New → Old)</SelectItem>
-                  <SelectItem value="date_ASC">Event Date (Old → New)</SelectItem>
-                  <SelectItem value="views_DESC">Most Viewed</SelectItem>
-                  <SelectItem value="likes_DESC">Most Liked</SelectItem>
+                  <SelectItem value="created_at_DESC">Mới nhất</SelectItem>
+                  <SelectItem value="created_at_ASC">Cũ nhất</SelectItem>
+                  <SelectItem value="date_DESC">Ngày diễn ra (mới → cũ)</SelectItem>
+                  <SelectItem value="date_ASC">Ngày diễn ra (cũ → mới)</SelectItem>
+                  <SelectItem value="views_DESC">Xem nhiều nhất</SelectItem>
+                  <SelectItem value="likes_DESC">Thích nhiều nhất</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -167,7 +167,7 @@ export default function AdminEventsPage() {
               >
 
                 <Plus className="w-4 h-4 mr-2" />
-                Create New Event
+                Tạo sự kiện
               </Button>
             </div>
           </CardContent>
@@ -177,7 +177,7 @@ export default function AdminEventsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              <span>Event List ({events.length})</span>
+              <span>Danh sách sự kiện ({events.length})</span>
               {events.length > 0 && (
                 <Badge variant="outline" className="text-sm">
                   Page {currentPage} / {totalPages}
@@ -211,16 +211,16 @@ export default function AdminEventsPage() {
               <div className="text-center py-12">
                 <Calendar className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No events found
+                  Không tìm thấy sự kiện
                 </h3>
                 <p className="text-gray-500 mb-6">
                   {searchQuery || (selectedCategory && selectedCategory !== "all")
-                    ? "No events match your filters."
-                    : "No events have been created yet. Create the first event!"}
+                    ? "Không có sự kiện phù hợp với bộ lọc."
+                    : "Chưa có sự kiện nào. Hãy tạo sự kiện đầu tiên."}
                 </p>
                 <Button className="bg-[#004987] hover:bg-[#003366]">
                   <Plus className="w-4 h-4 mr-2" />
-                  Create the first event
+                  Tạo sự kiện đầu tiên
                 </Button>
               </div>
             ) : (
@@ -273,16 +273,16 @@ export default function AdminEventsPage() {
                             <div className="flex items-center gap-6 text-sm">
                               <div className="flex items-center gap-1 text-blue-600">
                                 <Eye className="w-4 h-4" />
-                                <span>{event.views}</span>
+                                <span>{event.views} lượt xem</span>
                               </div>
                               
                               <div className="flex items-center gap-1 text-red-600">
                                 <Heart className="w-4 h-4" />
-                                <span>{event.likes}</span>
+                                <span>{event.likes} lượt thích</span>
                               </div>
                               
                               <div className="text-gray-500">
-                                Updated: {formatUpdatedAt(event.updated_at)}
+                                Cập nhật: {formatUpdatedAt(event.updated_at)}
                               </div>
                               
                               {event.category && (
@@ -294,8 +294,8 @@ export default function AdminEventsPage() {
 
                             {/* Visibility Status */}
                             <div className="flex items-center gap-1">
-                              <span className="font-medium">Visible:</span>
-                              <span>{event.is_visible ? "Yes" : "No"}</span>
+                              <span className="font-medium">Hiển thị:</span>
+                              <span>{event.is_visible ? "Có" : "Không"}</span>
                             </div>
                           </div>
                         </div>
@@ -311,7 +311,7 @@ export default function AdminEventsPage() {
                         >
                           <Link href={`/events/${event.event_uuid}`} target="_blank">
                             <Eye className="w-4 h-4 mr-1" />
-                            View
+                            Xem
                           </Link>
                         </Button>
                         
@@ -323,7 +323,7 @@ export default function AdminEventsPage() {
                         >
                           <Link href={`/admin/events/${event.event_uuid}`}>
                             <Edit className="w-4 h-4 mr-1" />
-                            Edit
+                            Sửa
                           </Link>
                         </Button>
                         
@@ -334,7 +334,7 @@ export default function AdminEventsPage() {
                           onClick={() => handleDelete(event.event_uuid)}
                         >
                           <Trash2 className="w-4 h-4 mr-1" />
-                          Delete
+                          Xóa
                         </Button>
                       </div>
                     </div>

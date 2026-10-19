@@ -398,6 +398,84 @@ const sections: SectionDefinition[] = [
 
 type DraftMap = Record<string, Record<string, unknown>>;
 
+const sectionUi: Record<string, { title: string; description: string }> = {
+  branding: { title: "Thương hiệu", description: "Logo và thông tin nhận diện của website." },
+  navigation: { title: "Điều hướng", description: "Nhãn và đường dẫn trên thanh điều hướng." },
+  home_hero: { title: "Trang chủ · Phần đầu", description: "Nội dung chính, ảnh và nút hành động đầu trang." },
+  home_intro: { title: "Trang chủ · Giới thiệu", description: "Tiêu đề giới thiệu và các điểm nổi bật." },
+  home_events: { title: "Trang chủ · Hoạt động", description: "Nội dung bao quanh danh sách sự kiện." },
+  home_partners: { title: "Trang chủ · Đối tác", description: "Nội dung bao quanh logo đối tác." },
+  home_cta: { title: "Trang chủ · Kêu gọi tham gia", description: "Khu vực kêu gọi hành động cuối trang." },
+  about_hero: { title: "Giới thiệu · Phần đầu", description: "Nội dung đầu trang giới thiệu." },
+  about_mission: { title: "Giới thiệu · Sứ mệnh", description: "Sứ mệnh và các ý chính." },
+  about_vision: { title: "Giới thiệu · Tầm nhìn", description: "Tầm nhìn và các con số nổi bật." },
+  about_values: { title: "Giới thiệu · Giá trị", description: "Các giá trị cốt lõi của câu lạc bộ." },
+  about_journey: { title: "Giới thiệu · Hành trình", description: "Các mốc phát triển của câu lạc bộ." },
+  about_cta: { title: "Giới thiệu · Kêu gọi tham gia", description: "Khu vực cuối trang giới thiệu." },
+  team_hero: { title: "Đội ngũ · Phần đầu", description: "Nội dung phía trên danh sách thành viên." },
+  events_page: { title: "Trang sự kiện", description: "Nội dung đầu trang và lời mời hợp tác." },
+  blogs_page: { title: "Trang bài viết", description: "Nội dung đầu trang tin tức." },
+  join_hero: { title: "Tham gia · Phần đầu", description: "Nội dung đầu trang đăng ký." },
+  join_benefits: { title: "Tham gia · Quyền lợi", description: "Các quyền lợi khi tham gia câu lạc bộ." },
+  join_form: { title: "Tham gia · Biểu mẫu", description: "Nhãn và nội dung của biểu mẫu đăng ký." },
+  join_faq: { title: "Tham gia · Câu hỏi thường gặp", description: "Các câu hỏi thường gặp khi đăng ký." },
+  contact_hero: { title: "Liên hệ · Phần đầu", description: "Nội dung đầu trang liên hệ." },
+  contact_info: { title: "Liên hệ · Thông tin", description: "Địa chỉ và thông tin liên hệ." },
+  contact_location: { title: "Liên hệ · Bản đồ", description: "Đường dẫn bản đồ và vị trí." },
+  contact_faq: { title: "Liên hệ · Câu hỏi thường gặp", description: "Các câu hỏi thường gặp khi liên hệ." },
+  footer: { title: "Chân trang", description: "Liên kết và thông tin ở cuối website." },
+  socials: { title: "Mạng xã hội", description: "Các đường dẫn mạng xã hội chính thức." },
+};
+
+const fieldLabels: Record<string, string> = {
+  "Site name": "Tên website",
+  "Header logo": "Logo đầu trang",
+  "Footer logo": "Logo chân trang",
+  "Logo alt text": "Mô tả logo",
+  "Home label": "Nhãn trang chủ",
+  "Home URL": "Đường dẫn trang chủ",
+  "About label": "Nhãn giới thiệu",
+  "About URL": "Đường dẫn giới thiệu",
+  "Events label": "Nhãn sự kiện",
+  "Events URL": "Đường dẫn sự kiện",
+  "News label": "Nhãn bài viết",
+  "News URL": "Đường dẫn bài viết",
+  "Team label": "Nhãn đội ngũ",
+  "Team URL": "Đường dẫn đội ngũ",
+  "Contact label": "Nhãn liên hệ",
+  "Contact URL": "Đường dẫn liên hệ",
+  "Join button label": "Nhãn nút tham gia",
+  "Join URL": "Đường dẫn tham gia",
+  "Title": "Tiêu đề",
+  "Description": "Mô tả",
+  "Subtitle": "Mô tả phụ",
+  "Section title": "Tiêu đề khu vực",
+  "Section description": "Mô tả khu vực",
+  "Hero title": "Tiêu đề đầu trang",
+  "Hero description": "Mô tả đầu trang",
+  "CTA label": "Nhãn nút hành động",
+  "CTA URL": "Đường dẫn nút hành động",
+  "Image URL": "Đường dẫn ảnh",
+};
+
+const translateFieldLabel = (label: string) => {
+  if (fieldLabels[label]) return fieldLabels[label];
+  return label
+    .replaceAll("Quick link", "Liên kết nhanh")
+    .replaceAll("View-all", "Xem tất cả")
+    .replaceAll("Primary", "Chính")
+    .replaceAll("Secondary", "Phụ")
+    .replaceAll("label", "nhãn")
+    .replaceAll("URL", "đường dẫn")
+    .replaceAll("title", "tiêu đề")
+    .replaceAll("description", "mô tả")
+    .replaceAll("number", "số")
+    .replaceAll("date", "ngày")
+    .replaceAll("year", "năm")
+    .replaceAll("Value", "Giá trị")
+    .replaceAll("Stat", "Chỉ số");
+};
+
 export default function SiteContentPage() {
   const [drafts, setDrafts] = useState<DraftMap>({});
   const [visibility, setVisibility] = useState<Record<string, boolean>>({});
@@ -434,7 +512,7 @@ export default function SiteContentPage() {
         setVisibility(nextVisibility);
       } catch (error) {
         console.error(error);
-        toast.error("Failed to load site content");
+        toast.error("Không thể tải nội dung website");
       } finally {
         setLoading(false);
       }
@@ -473,10 +551,10 @@ export default function SiteContentPage() {
       setUploadingField(uploadKey);
       const result = await UploadService.uploadImage(file);
       updateField(sectionKey, fieldName, result.url);
-      toast.success("Image uploaded");
+      toast.success("Đã tải ảnh");
     } catch (error) {
       console.error(error);
-      toast.error("Image upload failed");
+      toast.error("Không thể tải ảnh");
     } finally {
       setUploadingField(null);
     }
@@ -490,10 +568,10 @@ export default function SiteContentPage() {
         drafts[sectionKey] ?? {},
         visibility[sectionKey] ?? true,
       );
-      toast.success("Section saved");
+      toast.success("Đã lưu khu vực");
     } catch (error) {
       console.error(error);
-      toast.error("Failed to save section");
+      toast.error("Không thể lưu khu vực");
     } finally {
       setSavingKey(null);
     }
@@ -510,9 +588,9 @@ export default function SiteContentPage() {
   return (
     <div className="container mx-auto max-w-6xl space-y-6 py-6">
       <div>
-        <h1 className="text-2xl font-bold">Website Content</h1>
+        <h1 className="text-2xl font-bold">Nội dung website</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Edit public content without changing layout or source code.
+          Cập nhật nội dung hiển thị mà không cần sửa bố cục hoặc mã nguồn.
         </p>
       </div>
 
@@ -521,13 +599,13 @@ export default function SiteContentPage() {
           <CardHeader>
             <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div>
-                <CardTitle>{section.title}</CardTitle>
+                <CardTitle>{sectionUi[section.key]?.title ?? section.title}</CardTitle>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {section.description}
+                  {sectionUi[section.key]?.description ?? section.description}
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <Label htmlFor={`visible-${section.key}`}>Visible</Label>
+                <Label htmlFor={`visible-${section.key}`}>Hiển thị</Label>
                 <Switch
                   id={`visible-${section.key}`}
                   checked={visibility[section.key] ?? true}
@@ -558,13 +636,13 @@ export default function SiteContentPage() {
                       field.type === "textarea" ? "space-y-2 md:col-span-2" : "space-y-2"
                     }
                   >
-                    <Label htmlFor={fieldId}>{field.label}</Label>
+                    <Label htmlFor={fieldId}>{translateFieldLabel(field.label)}</Label>
 
                     {field.type === "textarea" ? (
                       <Textarea
                         id={fieldId}
                         value={stringValue}
-                        placeholder={field.placeholder}
+                        placeholder={field.placeholder || "Nhập nội dung bằng tiếng Việt"}
                         onChange={(event) =>
                           updateField(section.key, field.name, event.target.value)
                         }
@@ -575,7 +653,12 @@ export default function SiteContentPage() {
                         id={fieldId}
                         type={field.type === "number" ? "number" : field.type === "url" ? "url" : "text"}
                         value={stringValue}
-                        placeholder={field.placeholder}
+                        placeholder={
+                          field.placeholder ||
+                          (field.type === "url"
+                            ? "https://bpsclub.com/duong-dan"
+                            : "Nhập nội dung bằng tiếng Việt")
+                        }
                         onChange={(event) =>
                           updateField(section.key, field.name, event.target.value)
                         }
@@ -590,7 +673,7 @@ export default function SiteContentPage() {
                           ) : (
                             <Upload className="h-4 w-4" />
                           )}
-                          Upload image
+                          Tải ảnh
                           <input
                             type="file"
                             accept="image/*"
@@ -627,7 +710,7 @@ export default function SiteContentPage() {
                 ) : (
                   <Save className="mr-2 h-4 w-4" />
                 )}
-                Save {section.title}
+                Lưu khu vực
               </Button>
             </div>
           </CardContent>

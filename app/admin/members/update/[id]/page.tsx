@@ -172,7 +172,7 @@ export default function EditMemberPage() {
               Back
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold">Edit Member</h1>
+          <h1 className="text-2xl font-bold">Chỉnh sửa thành viên</h1>
         </div>
         <Card>
           <CardContent className="p-6">
@@ -198,7 +198,7 @@ export default function EditMemberPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Edit Member</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Chỉnh sửa thành viên</h1>
           <p className="text-gray-600 mt-1">Update member information and settings</p>
         </div>
       </div>
@@ -225,14 +225,14 @@ export default function EditMemberPage() {
                   type="text"
                   value={formData.full_name}
                   onChange={(e) => handleInputChange("full_name", e.target.value)}
-                  placeholder="Enter member's full name"
+                  placeholder="Nguyễn Văn An"
                   required
                 />
               </div>
 
               {/* Avatar Upload */}
               <div className="space-y-4">
-                <Label>Avatar Image</Label>
+                <Label>Ảnh đại diện</Label>
                 
                 {/* Current Avatar Display */}
                 {(formData.image_file || formData.avatar_url) && (
@@ -294,7 +294,7 @@ export default function EditMemberPage() {
                     type="url"
                     value={formData.avatar_url}
                     onChange={(e) => handleInputChange("avatar_url", e.target.value)}
-                    placeholder="https://example.com/avatar.jpg"
+                  placeholder="https://ten-mien-cua-ban.vn/anh-dai-dien.jpg"
                   />
                 </div>
               </div>
@@ -306,7 +306,7 @@ export default function EditMemberPage() {
                   id="bio"
                   value={formData.bio}
                   onChange={(e) => handleInputChange("bio", e.target.value)}
-                  placeholder="Enter member's bio or description"
+                  placeholder="Một vài dòng giới thiệu về thành viên"
                   rows={4}
                 />
               </div>
@@ -315,16 +315,16 @@ export default function EditMemberPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Board */}
                 <div className="space-y-2">
-                  <Label htmlFor="board_id">Board</Label>
+                  <Label htmlFor="board_id">Ban phụ trách</Label>
                   <Select
                     value={formData.board_id?.toString() || "none"}
                     onValueChange={(value) => handleInputChange("board_id", value === "none" ? null : parseInt(value))}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a board" />
+                      <SelectValue placeholder="Chọn ban phụ trách" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">No Board</SelectItem>
+                      <SelectItem value="none">Chưa phân ban</SelectItem>
                       {boards.map((board) => (
                         <SelectItem key={board.id} value={board.id.toString()}>
                           {board.name}
@@ -336,12 +336,12 @@ export default function EditMemberPage() {
 
                 {/* Role */}
                 <div className="space-y-2">
-                  <Label htmlFor="role">Role</Label>
+                  <Label htmlFor="role">Chức vụ</Label>
                   <div className="space-y-2">
                     <Input
                       id="role_name"
                       type="text"
-                      placeholder="Enter role name or select from existing"
+                      placeholder="Ví dụ: Phó chủ nhiệm"
                       value={formData.role_name}
                       onChange={(e) => {
                         handleInputChange("role_name", e.target.value);
@@ -364,10 +364,10 @@ export default function EditMemberPage() {
                       }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Or select from existing roles" />
+                        <SelectValue placeholder="Hoặc chọn chức vụ đã có" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="none">No Role</SelectItem>
+                        <SelectItem value="none">Chưa chọn chức vụ</SelectItem>
                         {roles.map((role) => (
                           <SelectItem key={role.id} value={role.id.toString()}>
                             {role.name}
@@ -479,9 +479,9 @@ export default function EditMemberPage() {
                             onChange={(e) => handleSocialChange(index, "url", e.target.value)}
                             placeholder={social.platform 
                               ? social.platform === 'email' 
-                                ? 'example@email.com' 
-                                : `https://${social.platform}.com/username`
-                              : 'https://...'
+                              ? 'thanhvien@bpsclub.com' 
+                              : `https://${social.platform}.com/ten-nguoi-dung`
+                            : 'https://duong-dan-trang-ca-nhan'
                             }
                           />
                           {social.platform && (

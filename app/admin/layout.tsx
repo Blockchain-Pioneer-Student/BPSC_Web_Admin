@@ -2,6 +2,7 @@ import { AdminRouteGuard } from "@/components/admin/AdminRouteGuard";
 import { AdminSidebar } from "@/components/admin/sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { PublicPreview } from "@/components/admin/PublicPreview";
 export default function AdminLayout({
   children,
 }: {
@@ -17,6 +18,7 @@ export default function AdminLayout({
         </main>
       </div>
       <SiteFooter />
+      <PublicPreview />
     </AdminRouteGuard>
   );
 }

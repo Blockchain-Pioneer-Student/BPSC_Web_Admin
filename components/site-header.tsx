@@ -37,7 +37,7 @@ export function SiteHeader({ onMobileMenuToggle }: HeaderProps) {
   const generateBreadcrumb = () => {
     const segments = pathname.split('/').filter(Boolean);
     const breadcrumbItems = [
-      { label: 'Dashboard', href: '/admin' }
+      { label: 'Tổng quan', href: '/admin' }
     ];
 
     if (segments.length > 1) {
@@ -46,7 +46,18 @@ export function SiteHeader({ onMobileMenuToggle }: HeaderProps) {
         currentPath += `/${segment}`;
         const label = segment.charAt(0).toUpperCase() + segment.slice(1);
         breadcrumbItems.push({
-          label: label === 'Events' ? 'Event Management' : label,
+          label:
+            label === 'Events'
+              ? 'Sự kiện'
+              : label === 'Members'
+                ? 'Thành viên'
+                : label === 'Partners'
+                  ? 'Đối tác'
+                  : label === 'Blogs'
+                    ? 'Bài viết'
+                    : label === 'Site-content'
+                      ? 'Nội dung website'
+                      : label,
           href: `/admin${currentPath}`
         });
       });
@@ -59,11 +70,11 @@ export function SiteHeader({ onMobileMenuToggle }: HeaderProps) {
   const getPageTitle = () => {
     const segments = pathname.split('/').filter(Boolean);
     if (segments.includes('events')) {
-      if (segments[segments.length - 1] === 'create') return 'Create New Event';
-      if (segments[segments.length - 1] !== 'events') return 'Event Details';
-      return 'Event Management';
+      if (segments[segments.length - 1] === 'create') return 'Tạo sự kiện mới';
+      if (segments[segments.length - 1] !== 'events') return 'Chi tiết sự kiện';
+      return 'Quản lý sự kiện';
     }
-    return 'Dashboard Overview';
+    return 'Tổng quan';
   };
 
   const breadcrumb = generateBreadcrumb();
@@ -117,7 +128,7 @@ export function SiteHeader({ onMobileMenuToggle }: HeaderProps) {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 type="text"
-                placeholder="Search events, registrations, members..."
+                placeholder="Tìm sự kiện, đơn đăng ký, thành viên..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 pr-4 py-2 w-full text-sm"
@@ -141,27 +152,27 @@ export function SiteHeader({ onMobileMenuToggle }: HeaderProps) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-80">
                 <div className="p-3 border-b">
-                  <h4 className="font-semibold">Notifications</h4>
+                  <h4 className="font-semibold">Thông báo</h4>
                 </div>
                 <DropdownMenuItem className="p-3">
                   <div>
-                    <p className="font-medium">New Registration</p>
-                    <p className="text-sm text-gray-500">John Doe registered for Blockchain Workshop</p>
-                    <p className="text-xs text-gray-400">2 minutes ago</p>
+                    <p className="font-medium">Đơn đăng ký mới</p>
+                    <p className="text-sm text-gray-500">Nguyễn Minh Anh vừa gửi đơn tham gia câu lạc bộ</p>
+                    <p className="text-xs text-gray-400">2 phút trước</p>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="p-3">
                   <div>
-                    <p className="font-medium">Event Reminder</p>
-                    <p className="text-sm text-gray-500">AI Conference starts in 2 hours</p>
-                    <p className="text-xs text-gray-400">1 hour ago</p>
+                    <p className="font-medium">Nhắc lịch sự kiện</p>
+                    <p className="text-sm text-gray-500">Workshop blockchain bắt đầu sau 2 giờ</p>
+                    <p className="text-xs text-gray-400">1 giờ trước</p>
                   </div>
                 </DropdownMenuItem>
                 <DropdownMenuItem className="p-3">
                   <div>
-                    <p className="font-medium">System Update</p>
-                    <p className="text-sm text-gray-500">Dashboard updated to v2.1.0</p>
-                    <p className="text-xs text-gray-400">3 hours ago</p>
+                    <p className="font-medium">Cập nhật hệ thống</p>
+                    <p className="text-sm text-gray-500">Bảng quản trị đã được cập nhật</p>
+                    <p className="text-xs text-gray-400">3 giờ trước</p>
                   </div>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -177,15 +188,15 @@ export function SiteHeader({ onMobileMenuToggle }: HeaderProps) {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => setIsDarkMode(!isDarkMode)}>
                   {isDarkMode ? <Sun className="h-4 w-4 mr-2" /> : <Moon className="h-4 w-4 mr-2" />}
-                  {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+                  {isDarkMode ? 'Chế độ sáng' : 'Chế độ tối'}
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="h-4 w-4 mr-2" />
-                  Preferences
+                  Tùy chọn
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Download className="h-4 w-4 mr-2" />
-                  Export Settings
+                  Xuất cấu hình
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -200,15 +211,15 @@ export function SiteHeader({ onMobileMenuToggle }: HeaderProps) {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem>
                   <HelpCircle className="h-4 w-4 mr-2" />
-                  Documentation
+                  Tài liệu
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Settings className="h-4 w-4 mr-2" />
-                  API Reference
+                  Tham chiếu API
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Bell className="h-4 w-4 mr-2" />
-                  Contact Support
+                  Liên hệ hỗ trợ
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

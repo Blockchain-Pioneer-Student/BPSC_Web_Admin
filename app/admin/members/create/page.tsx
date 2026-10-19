@@ -82,7 +82,7 @@ export default function CreateMemberPage() {
         setRoles(rolesData);
       } catch (error) {
         console.error("Error loading data:", error);
-        toast.error("Unable to load boards and roles");
+        toast.error("Không thể tải danh sách ban và vai trò");
       } finally {
         setDataLoading(false);
       }
@@ -119,7 +119,7 @@ export default function CreateMemberPage() {
     e.preventDefault();
     
     if (!formData.full_name.trim()) {
-      toast.error("Full name is required");
+      toast.error("Vui lòng nhập họ và tên");
       return;
     }
 
@@ -127,11 +127,11 @@ export default function CreateMemberPage() {
       setSaving(true);
       
       await createMember(formData);
-      toast.success("Member created successfully");
+      toast.success("Đã thêm thành viên");
       router.push("/admin/members");
     } catch (error) {
       console.error("Error creating member:", error);
-      toast.error("Unable to create member. Please try again.");
+      toast.error("Không thể thêm thành viên. Vui lòng thử lại.");
     } finally {
       setSaving(false);
     }
@@ -144,10 +144,10 @@ export default function CreateMemberPage() {
           <Link href="/admin/members">
             <Button variant="outline" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Back
+              Quay lại
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold">Create Member</h1>
+          <h1 className="text-2xl font-bold">Thêm thành viên</h1>
         </div>
         <Card>
           <CardContent className="p-6">
@@ -169,12 +169,12 @@ export default function CreateMemberPage() {
         <Link href="/admin/members">
           <Button variant="outline" size="sm">
             <ArrowLeft className="w-4 h-4 mr-2" />
-            Back
+            Quay lại
           </Button>
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Create Member</h1>
-          <p className="text-gray-600 mt-1">Add a new club member</p>
+          <h1 className="text-2xl font-bold text-gray-900">Thêm thành viên</h1>
+          <p className="text-gray-600 mt-1">Bổ sung thành viên vào đội ngũ câu lạc bộ</p>
         </div>
       </div>
 
@@ -184,19 +184,19 @@ export default function CreateMemberPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <User className="w-5 h-5" />
-              Member Information
+              Thông tin thành viên
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Full Name */}
             <div className="space-y-2">
               <Label htmlFor="full_name">
-                Full Name <span className="text-red-500">*</span>
+                Họ và tên <span className="text-red-500">*</span>
               </Label>
               <Input
                 id="full_name"
                 type="text"
-                placeholder="Enter full name"
+                placeholder="Nguyễn Văn An"
                 value={formData.full_name}
                 onChange={(e) => handleInputChange("full_name", e.target.value)}
                 required
@@ -205,14 +205,14 @@ export default function CreateMemberPage() {
 
             {/* Avatar Upload */}
             <div className="space-y-4">
-              <Label>Avatar Image</Label>
+              <Label>Ảnh đại diện</Label>
               
               {/* Current Avatar Display */}
               {(formData.image_file || formData.avatar_url) && (
                 <div className="relative w-32 h-32 rounded-full overflow-hidden border border-gray-200">
                   <Image
                     src={formData.image_file ? URL.createObjectURL(formData.image_file) : formData.avatar_url}
-                    alt="Member avatar"
+                    alt="Ảnh đại diện thành viên"
                     fill
                     className="object-cover"
                   />
@@ -250,17 +250,17 @@ export default function CreateMemberPage() {
                   ) : (
                     <Upload className="h-4 w-4" />
                   )}
-                  {uploading ? "Uploading..." : "Upload Avatar"}
+                  {uploading ? "Đang tải ảnh..." : "Tải ảnh đại diện"}
                 </Button>
               </div>
 
               {/* Manual URL Input */}
               <div className="space-y-2">
-                <Label htmlFor="avatar_url">Or enter avatar URL</Label>
+                <Label htmlFor="avatar_url">Hoặc nhập đường dẫn ảnh</Label>
                 <Input
                   id="avatar_url"
                   type="url"
-                  placeholder="https://example.com/avatar.jpg"
+                  placeholder="https://ten-mien-cua-ban.vn/anh-dai-dien.jpg"
                   value={formData.avatar_url}
                   onChange={(e) => handleInputChange("avatar_url", e.target.value)}
                 />
@@ -269,10 +269,10 @@ export default function CreateMemberPage() {
 
             {/* Bio */}
             <div className="space-y-2">
-              <Label htmlFor="bio">Bio</Label>
+              <Label htmlFor="bio">Giới thiệu</Label>
               <Textarea
                 id="bio"
-                placeholder="Enter member bio"
+                placeholder="Một vài dòng giới thiệu về thành viên"
                 value={formData.bio}
                 onChange={(e) => handleInputChange("bio", e.target.value)}
                 rows={4}
@@ -283,7 +283,7 @@ export default function CreateMemberPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Board */}
               <div className="space-y-2">
-                <Label htmlFor="board">Board</Label>
+                <Label htmlFor="board">Ban phụ trách</Label>
                 <Select
                   value={formData.board_id?.toString() || "none"}
                   onValueChange={(value) => 
@@ -291,10 +291,10 @@ export default function CreateMemberPage() {
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a board" />
+                    <SelectValue placeholder="Chọn ban phụ trách" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">No Board</SelectItem>
+                    <SelectItem value="none">Chưa phân ban</SelectItem>
                     {boards.map((board) => (
                       <SelectItem key={board.id} value={board.id.toString()}>
                         {board.name}
@@ -306,12 +306,12 @@ export default function CreateMemberPage() {
 
               {/* Role */}
               <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
+                <Label htmlFor="role">Chức vụ</Label>
                 <div className="space-y-2">
                   <Input
                     id="role_name"
                     type="text"
-                    placeholder="Enter role name or select from existing"
+                    placeholder="Ví dụ: Phó chủ nhiệm"
                     value={formData.role_name}
                     onChange={(e) => {
                       handleInputChange("role_name", e.target.value);
@@ -334,10 +334,10 @@ export default function CreateMemberPage() {
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Or select from existing roles" />
+                      <SelectValue placeholder="Hoặc chọn chức vụ đã có" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">No Role</SelectItem>
+                      <SelectItem value="none">Chưa chọn chức vụ</SelectItem>
                       {roles.map((role) => (
                         <SelectItem key={role.id} value={role.id.toString()}>
                           {role.name}
@@ -346,7 +346,7 @@ export default function CreateMemberPage() {
                     </SelectContent>
                   </Select>
                   <p className="text-xs text-gray-500">
-                    Enter a new role name above or select an existing role below. New roles will be created automatically.
+                    Nhập chức vụ mới hoặc chọn một chức vụ đã có. Chức vụ mới sẽ được tạo tự động.
                   </p>
                 </div>
               </div>
@@ -354,7 +354,7 @@ export default function CreateMemberPage() {
 
             {/* Display Order */}
             <div className="space-y-2">
-              <Label htmlFor="display_order">Display Order</Label>
+              <Label htmlFor="display_order">Thứ tự hiển thị</Label>
               <Input
                 id="display_order"
                 type="number"
@@ -370,7 +370,7 @@ export default function CreateMemberPage() {
             {/* Social Media Links */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <Label>Social Media Links</Label>
+                <Label>Liên kết mạng xã hội</Label>
                 <Button
                   type="button"
                   variant="outline"
@@ -379,7 +379,7 @@ export default function CreateMemberPage() {
                   className="gap-2"
                 >
                   <Plus className="h-4 w-4" />
-                  Add Social
+                  Thêm liên kết
                 </Button>
               </div>
               
@@ -387,7 +387,7 @@ export default function CreateMemberPage() {
                 <div key={index} className="p-4 border rounded-lg space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Platform</Label>
+                      <Label>Nền tảng</Label>
                       <div className="space-y-2">
                         <Select
                           value={social.platform}
@@ -430,17 +430,17 @@ export default function CreateMemberPage() {
                             <SelectItem value="blog">Blog</SelectItem>
                             <SelectItem value="portfolio">Portfolio</SelectItem>
                             <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="custom">Custom Platform...</SelectItem>
+                            <SelectItem value="custom">Nền tảng khác...</SelectItem>
                           </SelectContent>
                         </Select>
                         <Input
-                          placeholder="Enter custom platform name"
+                          placeholder="Nhập tên nền tảng"
                           value={social.platform}
                           onChange={(e) => handleSocialChange(index, "platform", e.target.value)}
                           className="text-sm"
                         />
                         <p className="text-xs text-gray-500">
-                          Select from dropdown or enter custom platform name above
+                          Chọn trong danh sách hoặc nhập tên nền tảng ở trên
                         </p>
                       </div>
                     </div>
@@ -451,16 +451,16 @@ export default function CreateMemberPage() {
                         onChange={(e) => handleSocialChange(index, "url", e.target.value)}
                         placeholder={social.platform 
                           ? social.platform === 'email' 
-                            ? 'example@email.com' 
-                            : `https://${social.platform}.com/username`
-                          : 'https://...'
+                            ? 'thanhvien@bpsclub.com' 
+                            : `https://${social.platform}.com/ten-nguoi-dung`
+                          : 'https://duong-dan-trang-ca-nhan'
                         }
                       />
                       {social.platform && (
                         <p className="text-xs text-gray-400">
                           {social.platform === 'email' 
-                            ? 'Enter email address' 
-                            : `Enter your ${social.platform} profile URL`
+                            ? 'Nhập địa chỉ email' 
+                            : `Nhập đường dẫn ${social.platform} của thành viên`
                           }
                         </p>
                       )}
@@ -474,7 +474,7 @@ export default function CreateMemberPage() {
                     className="gap-2"
                   >
                     <X className="h-4 w-4" />
-                    Remove
+                    Xóa liên kết
                   </Button>
                 </div>
               ))}
@@ -489,12 +489,12 @@ export default function CreateMemberPage() {
               />
               <div className="space-y-0.5">
                 <Label htmlFor="is_active" className="text-sm font-medium">
-                  Active Status
+                  Trạng thái hoạt động
                 </Label>
                 <p className="text-xs text-muted-foreground">
                   {formData.is_active 
-                    ? "This member is currently active and visible" 
-                    : "This member is inactive and hidden from public view"
+                    ? "Thành viên đang hoạt động và hiển thị trên website" 
+                    : "Thành viên đang tạm ẩn trên website"
                   }
                 </p>
               </div>
@@ -512,12 +512,12 @@ export default function CreateMemberPage() {
                 ) : (
                   <Save className="w-4 h-4" />
                 )}
-                {(saving || memberLoading) ? "Creating..." : "Create Member"}
+                {(saving || memberLoading) ? "Đang lưu..." : "Thêm thành viên"}
               </Button>
               
               <Link href="/admin/members">
                 <Button type="button" variant="outline">
-                  Cancel
+                  Hủy
                 </Button>
               </Link>
             </div>

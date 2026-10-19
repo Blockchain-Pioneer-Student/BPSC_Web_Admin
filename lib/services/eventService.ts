@@ -101,9 +101,9 @@ class EventService extends BaseApiService {
     }
   }
 
-  async getEventById(id: number): Promise<Event> {
+  async getEventById(id: number | string): Promise<Event> {
     try {
-      return await this.get<Event>(`/events/${id}`, false); // Public endpoint
+      return await this.get<Event>(`/events/uuid/${id}`, false);
     } catch (error) {
       console.error('Error fetching event:', error);
       throw error;

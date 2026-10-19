@@ -52,7 +52,7 @@ export default function PartnersPage() {
       setPartners(await partnerService.getAllPartners());
     } catch (error) {
       console.error(error);
-      toast.error("Failed to load partners");
+      toast.error("Không thể tải danh sách đối tác");
     } finally {
       setLoading(false);
     }
@@ -99,10 +99,10 @@ export default function PartnersPage() {
       setUploading(true);
       const result = await UploadService.uploadImage(file);
       update("logo", result.url);
-      toast.success("Logo uploaded");
+      toast.success("Đã tải logo");
     } catch (error) {
       console.error(error);
-      toast.error("Logo upload failed");
+      toast.error("Không thể tải logo");
     } finally {
       setUploading(false);
     }
@@ -110,7 +110,7 @@ export default function PartnersPage() {
 
   const save = async () => {
     if (!form.name.trim() || !form.logo.trim() || !form.description.trim()) {
-      toast.error("Name, logo and description are required");
+      toast.error("Vui lòng nhập tên, logo và mô tả");
       return;
     }
 
@@ -129,31 +129,31 @@ export default function PartnersPage() {
 
       if (editing) {
         await partnerService.updatePartner(editing.id, payload);
-        toast.success("Partner updated");
+        toast.success("Đã cập nhật đối tác");
       } else {
         await partnerService.createPartner(payload);
-        toast.success("Partner created");
+        toast.success("Đã thêm đối tác");
       }
       setDialogOpen(false);
       await loadPartners();
     } catch (error) {
       console.error(error);
-      toast.error("Failed to save partner");
+      toast.error("Không thể lưu đối tác");
     } finally {
       setSaving(false);
     }
   };
 
   const remove = async (partner: Partner) => {
-    if (!window.confirm(`Delete ${partner.name}?`)) return;
+    if (!window.confirm(`Xóa đối tác ${partner.name}?`)) return;
 
     try {
       await partnerService.deletePartner(partner.id);
-      toast.success("Partner deleted");
+      toast.success("Đã xóa đối tác");
       await loadPartners();
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete partner");
+      toast.error("Không thể xóa đối tác");
     }
   };
 
@@ -161,20 +161,20 @@ export default function PartnersPage() {
     <div className="container mx-auto max-w-6xl space-y-6 py-6">
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
-          <h1 className="text-2xl font-bold">Partners</h1>
+          <h1 className="text-2xl font-bold">Đối tác</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Manage partner logos, links, contact information and visibility status.
+            Quản lý logo, liên kết, thông tin liên hệ và trạng thái hiển thị.
           </p>
         </div>
         <Button onClick={openCreate}>
           <Plus className="mr-2 h-4 w-4" />
-          Add partner
+          Thêm đối tác
         </Button>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Partner network</CardTitle>
+          <CardTitle>Mạng lưới đối tác</CardTitle>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -183,7 +183,7 @@ export default function PartnersPage() {
             </div>
           ) : partners.length === 0 ? (
             <div className="py-12 text-center text-sm text-muted-foreground">
-              No partners yet.
+              Chưa có đối tác nào.
             </div>
           ) : (
             <div className="grid gap-4 md:grid-cols-2">
@@ -246,22 +246,24 @@ export default function PartnersPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{editing ? "Edit partner" : "Add partner"}</DialogTitle>
+            <DialogTitle>{editing ? "Chỉnh sửa đối tác" : "Thêm đối tác"}</DialogTitle>
           </DialogHeader>
 
           <div className="grid gap-5 py-2 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
-              <Label>Name</Label>
+              <Label>Tên đối tác</Label>
               <Input
                 value={form.name}
+                placeholder="Ví dụ: Project Catalyst"
                 onChange={(event) => update("name", event.target.value)}
               />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label>Logo URL</Label>
+              <Label>Đường dẫn logo</Label>
               <Input
                 value={form.logo}
+                placeholder="https://ten-mien-doi-tac.vn/logo.png"
                 onChange={(event) => update("logo", event.target.value)}
               />
               <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm hover:bg-muted">
@@ -270,7 +272,7 @@ export default function PartnersPage() {
                 ) : (
                   <Upload className="h-4 w-4" />
                 )}
-                Upload logo
+                Tải logo
                 <input
                   type="file"
                   accept="image/*"
@@ -284,7 +286,7 @@ export default function PartnersPage() {
             </div>
 
             <div className="space-y-2">
-              <Label>Type</Label>
+              <Label>Nhóm đối tác</Label>
               <select
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                 value={form.type}
@@ -292,16 +294,16 @@ export default function PartnersPage() {
                   update("type", event.target.value as PartnerType)
                 }
               >
-                <option value="academic">Academic</option>
-                <option value="business">Business</option>
-                <option value="community">Community</option>
-                <option value="government">Government</option>
-                <option value="technology">Technology</option>
+                <option value="academic">Học thuật</option>
+                <option value="business">Doanh nghiệp</option>
+                <option value="community">Cộng đồng</option>
+                <option value="government">Cơ quan</option>
+                <option value="technology">Công nghệ</option>
               </select>
             </div>
 
             <div className="space-y-2">
-              <Label>Status</Label>
+              <Label>Trạng thái</Label>
               <select
                 className="h-10 w-full rounded-md border bg-background px-3 text-sm"
                 value={form.status}
@@ -309,14 +311,14 @@ export default function PartnersPage() {
                   update("status", event.target.value as PartnerStatus)
                 }
               >
-                <option value="active">Active</option>
-                <option value="inactive">Inactive</option>
-                <option value="pending">Pending</option>
+                <option value="active">Đang hiển thị</option>
+                <option value="inactive">Tạm ẩn</option>
+                <option value="pending">Chờ duyệt</option>
               </select>
             </div>
 
             <div className="space-y-2">
-              <Label>Display order</Label>
+              <Label>Thứ tự hiển thị</Label>
               <Input
                 type="number"
                 min={0}
@@ -328,10 +330,11 @@ export default function PartnersPage() {
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <Label>Description</Label>
+              <Label>Mô tả</Label>
               <Textarea
                 rows={4}
                 value={form.description}
+                placeholder="Mô tả ngắn về vai trò của đối tác với câu lạc bộ"
                 onChange={(event) => update("description", event.target.value)}
               />
             </div>
@@ -340,31 +343,35 @@ export default function PartnersPage() {
               <Label>Website</Label>
               <Input
                 value={form.website ?? ""}
+                placeholder="https://ten-mien-doi-tac.vn"
                 onChange={(event) => update("website", event.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Email</Label>
+              <Label>Email liên hệ</Label>
               <Input
                 type="email"
                 value={form.email ?? ""}
+                placeholder="lienhe@doitac.vn"
                 onChange={(event) => update("email", event.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Phone</Label>
+              <Label>Số điện thoại</Label>
               <Input
                 value={form.phone ?? ""}
+                placeholder="0325 045 633"
                 onChange={(event) => update("phone", event.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Address</Label>
+              <Label>Địa chỉ</Label>
               <Input
                 value={form.address ?? ""}
+                placeholder="Địa chỉ văn phòng"
                 onChange={(event) => update("address", event.target.value)}
               />
             </div>
@@ -372,11 +379,11 @@ export default function PartnersPage() {
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
+              Hủy
             </Button>
             <Button onClick={() => void save()} disabled={saving || uploading}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save
+              Lưu đối tác
             </Button>
           </DialogFooter>
         </DialogContent>

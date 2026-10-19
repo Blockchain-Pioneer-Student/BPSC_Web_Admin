@@ -110,13 +110,13 @@ export default function AdminEventCreatePage() {
       setSaving(true);
 
       if (!formData.title.trim()) {
-        toast.error("Event name is required");
+        toast.error("Vui lòng nhập tên sự kiện");
         setSaving(false);
         return;
       }
 
       if (!formData.date) {
-        toast.error("Event date is required");
+        toast.error("Vui lòng chọn ngày diễn ra");
         setSaving(false);
         return;
       }
@@ -140,14 +140,14 @@ export default function AdminEventCreatePage() {
 
       await createEvent(eventData);
 
-      toast.success("Event created successfully");
+      toast.success("Đã tạo sự kiện");
       
       setTimeout(() => {
         router.push("/admin/events");
       }, 1500);
     } catch (error) {
       console.error("Error creating event:", error);
-      toast.error("Failed to create event");
+      toast.error("Không thể tạo sự kiện");
     } finally {
       setSaving(false);
     }
@@ -241,35 +241,35 @@ export default function AdminEventCreatePage() {
             <Link href="/admin/events">
               <Button variant="outline" className="mb-4">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to list
+                Quay lại danh sách
               </Button>
             </Link>
             
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Create New Event
+              Tạo sự kiện mới
             </h1>
-            <p className="text-gray-600">Fill in the information to create a new event.</p>
+            <p className="text-gray-600">Nhập thông tin để đăng sự kiện lên website.</p>
           </div>
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-xl">Event Information</CardTitle>
+              <CardTitle className="text-xl">Thông tin sự kiện</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-2">
-                <Label htmlFor="title">Event Name *</Label>
+                <Label htmlFor="title">Tên sự kiện *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  placeholder="Enter event name..."
+                  placeholder="Ví dụ: Workshop ví và smart contract"
                   className="text-lg font-semibold"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="category">Event Category</Label>
+                  <Label htmlFor="category">Loại sự kiện</Label>
                   <Select
                     value={formData.category_id?.toString() || ""}
                     onValueChange={(value) => 
@@ -278,7 +278,7 @@ export default function AdminEventCreatePage() {
                     disabled={categoriesLoading}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder={categoriesLoading ? "Loading..." : "Select category"} />
+                      <SelectValue placeholder={categoriesLoading ? "Đang tải..." : "Chọn loại sự kiện"} />
                     </SelectTrigger>
                     <SelectContent>
                       {categories.map((category) => (
@@ -291,19 +291,19 @@ export default function AdminEventCreatePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="slug">Slug</Label>
+                  <Label htmlFor="slug">Đường dẫn</Label>
                   <Input
                     id="slug"
                     value={formData.slug}
                     onChange={(e) => handleInputChange("slug", e.target.value)}
-                    placeholder="Enter event slug..."
+                    placeholder="vi-du-workshop-smart-contract"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="date">Event Date *</Label>
+                  <Label htmlFor="date">Ngày diễn ra *</Label>
                   <Input
                     id="date"
                     type="date"
@@ -313,7 +313,7 @@ export default function AdminEventCreatePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="time">Time</Label>
+                  <Label htmlFor="time">Thời gian</Label>
                   <Input
                     id="time"
                     type="time"
@@ -325,17 +325,17 @@ export default function AdminEventCreatePage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="location">Location</Label>
+                  <Label htmlFor="location">Địa điểm</Label>
                   <Input
                     id="location"
                     value={formData.location}
                     onChange={(e) => handleInputChange("location", e.target.value)}
-                    placeholder="E.g.: UTC University"
+                    placeholder="Ví dụ: Đại học Giao thông vận tải"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="excerpt">Short Description</Label>
+                  <Label htmlFor="excerpt">Mô tả ngắn</Label>
                   <Input
                     id="excerpt"
                     value={formData.excerpt}
@@ -345,12 +345,12 @@ export default function AdminEventCreatePage() {
               </div>
 
               <div className="space-y-4">
-                <Label>Event Image</Label>
+                <Label>Ảnh sự kiện</Label>
                 {formData.image_file && (
                   <div className="relative w-full h-64 rounded-lg overflow-hidden border border-gray-200">
                     <Image
                       src={URL.createObjectURL(formData.image_file)}
-                      alt="Event image"
+                      alt="Ảnh sự kiện"
                       fill
                       className="object-cover"
                     />
@@ -375,20 +375,20 @@ export default function AdminEventCreatePage() {
                     }
                     disabled={uploading}
                   >
-                    {uploading ? "Uploading..." : "Upload Event Image"}
+                    {uploading ? "Đang tải ảnh..." : "Tải ảnh sự kiện"}
                   </Button>
                 </div>
               </div>
 
               <div className="space-y-4">
-                <Label htmlFor="content">Event Content</Label>
+                <Label htmlFor="content">Nội dung sự kiện</Label>
                 
                 {/* HTML File Upload */}
                 <div className="p-4 bg-gray-50 rounded-lg border space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <p className="text-sm text-gray-600">
-                        Upload HTML file to quickly import content
+                        Tải tệp HTML để nhập nhanh nội dung
                       </p>
                       {uploadedHtmlFile && (
                         <div className="mt-2 flex items-center gap-2">
@@ -428,7 +428,7 @@ export default function AdminEventCreatePage() {
                         className="whitespace-nowrap"
                       >
                         <Upload className="w-4 h-4 mr-2" />
-                        {uploadedHtmlFile ? "Replace HTML" : "Import HTML"}
+                        {uploadedHtmlFile ? "Thay tệp HTML" : "Nhập tệp HTML"}
                       </Button>
                     </div>
                   </div>
@@ -439,21 +439,21 @@ export default function AdminEventCreatePage() {
                   onChange={(value: string) =>
                     handleInputChange("notion_content", value)
                   }
-                  placeholder="Enter detailed event content or import from HTML file..."
+                  placeholder="Nhập nội dung chi tiết hoặc chọn tệp HTML..."
                 />
               </div>
 
               <div className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex items-center space-x-3">
                   {formData.is_visible ? (
-                    <span className="text-green-600">Visible</span>
+                    <span className="text-green-600">Đang hiện</span>
                   ) : (
-                    <span className="text-gray-400">Hidden</span>
+                    <span className="text-gray-400">Đang ẩn</span>
                   )}
                   <Label htmlFor="visibility" className="font-medium">
                     {formData.is_visible
-                      ? "Event is visible"
-                      : "Event is hidden"}
+                      ? "Sự kiện đang hiển thị"
+                      : "Sự kiện đang ẩn"}
                   </Label>
                 </div>
                 <Switch
@@ -466,28 +466,28 @@ export default function AdminEventCreatePage() {
               </div>
 
               <div className="space-y-4">
-                <Label>Schedule</Label>
+                <Label>Lịch chương trình</Label>
                 {formData.schedules.map((schedule, index) => (
                   <div key={index} className="p-4 border rounded-lg space-y-4">
                     <div className="space-y-2">
-                      <Label>Title</Label>
+                      <Label>Tiêu đề</Label>
                       <Input
                         value={schedule.title}
                         onChange={(e) => handleScheduleChange(index, "title", e.target.value)}
-                        placeholder="Enter schedule title"
+                        placeholder="Ví dụ: Khai mạc"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Description</Label>
+                      <Label>Mô tả</Label>
                       <Input
                         value={schedule.description}
                         onChange={(e) => handleScheduleChange(index, "description", e.target.value)}
-                        placeholder="Enter schedule description"
+                        placeholder="Mô tả ngắn cho nội dung"
                       />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label>Date</Label>
+                        <Label>Ngày</Label>
                         <Input
                           type="date"
                           value={schedule.date}
@@ -495,7 +495,7 @@ export default function AdminEventCreatePage() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label>Time</Label>
+                        <Label>Giờ</Label>
                         <Input
                           type="time"
                           value={schedule.time}
@@ -507,50 +507,50 @@ export default function AdminEventCreatePage() {
                       variant="destructive"
                       onClick={() => handleDeleteSchedule(index)}
                     >
-                      Delete Schedule
+                      Xóa mục lịch
                     </Button>
                   </div>
                 ))}
                 <Button onClick={handleAddSchedule} variant="outline">
-                  Add Schedule
+                  Thêm mục lịch
                 </Button>
               </div>
 
               <div className="space-y-4">
-                <Label>Speakers</Label>
+                <Label>Diễn giả</Label>
                 {formData.speakers.map((speaker, index) => (
                   <div key={index} className="p-4 border rounded-lg space-y-4">
                     <div className="space-y-2">
-                      <Label>Speaker Name</Label>
+                      <Label>Tên diễn giả</Label>
                       <Input
                         value={speaker.name}
                         onChange={(e) => handleSpeakerChange(index, "name", e.target.value)}
-                        placeholder="Enter speaker name"
+                        placeholder="Nguyễn Văn An"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Role</Label>
+                      <Label>Vai trò</Label>
                       <Input
                         value={speaker.role}
                         onChange={(e) => handleSpeakerChange(index, "role", e.target.value)}
-                        placeholder="Enter speaker role"
+                        placeholder="Founder, Developer..."
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Biography</Label>
+                      <Label>Giới thiệu</Label>
                       <Input
                         value={speaker.bio}
                         onChange={(e) => handleSpeakerChange(index, "bio", e.target.value)}
-                        placeholder="Enter speaker bio"
+                        placeholder="Một vài dòng giới thiệu"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>Avatar</Label>
+                      <Label>Ảnh đại diện</Label>
                       {speaker.avatar_img && (
                         <div className="relative w-32 h-32 rounded-full overflow-hidden border border-gray-200">
                           <Image
                             src={speaker.avatar_img}
-                            alt="Speaker avatar"
+                            alt="Ảnh đại diện diễn giả"
                             fill
                             className="object-cover"
                           />
@@ -596,7 +596,7 @@ export default function AdminEventCreatePage() {
                           onClick={() => document.getElementById(`speaker-avatar-upload-${index}`)?.click()}
                           disabled={uploading}
                         >
-                          {uploading ? "Uploading..." : "Upload Profile Image"}
+                          {uploading ? "Đang tải ảnh..." : "Tải ảnh đại diện"}
                         </Button>
                       </div>
                     </div>
@@ -604,12 +604,12 @@ export default function AdminEventCreatePage() {
                       variant="destructive"
                       onClick={() => handleDeleteSpeaker(index)}
                     >
-                      Delete Speaker
+                      Xóa diễn giả
                     </Button>
                   </div>
                 ))}
                 <Button onClick={handleAddSpeaker} variant="outline">
-                  Add Speaker
+                  Thêm diễn giả
                 </Button>
               </div>
 
@@ -622,7 +622,7 @@ export default function AdminEventCreatePage() {
                   className="bg-[#004987] hover:bg-[#003366] px-8"
                   size="lg"
                 >
-                  {saving ? "Creating..." : "Create Event"}
+                  {saving ? "Đang lưu..." : "Tạo sự kiện"}
                 </Button>
               </div>
             </CardContent>
