@@ -75,7 +75,6 @@ const sections: SectionDefinition[] = [
       { name: "image_url", label: "Hero image", type: "image" },
       { name: "cta_label", label: "CTA label" },
       { name: "cta_url", label: "CTA URL", type: "url" },
-      { name: "background_image_url", label: "Hero background image", type: "image" },
     ],
   },
   {
