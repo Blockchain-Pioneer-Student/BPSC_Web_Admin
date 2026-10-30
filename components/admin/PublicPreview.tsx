@@ -7,8 +7,11 @@ import { usePreviewContext } from "./PreviewContext";
 
 const routes = [
   { label: "Trang chủ", path: "/" },
+  { label: "Giới thiệu", path: "/about" },
   { label: "Sự kiện", path: "/events" },
+  { label: "Bài viết", path: "/blogs" },
   { label: "Đội ngũ", path: "/team" },
+  { label: "Tham gia", path: "/join" },
   { label: "Liên hệ", path: "/contact" },
 ];
 
@@ -17,13 +20,7 @@ export function PublicPreview() {
   const frameRef = useRef<HTMLIFrameElement>(null);
   const { drafts, visibility } = usePreviewContext();
   const clientUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "http://localhost:8081";
-  const targetOrigin = useMemo(() => {
-    try {
-      return new URL(clientUrl).origin;
-    } catch {
-      return "*";
-    }
-  }, [clientUrl]);
+  const targetOrigin = useMemo(() => new URL(clientUrl).origin, [clientUrl]);
   const previewUrl = useMemo(() => {
     const url = new URL(`${clientUrl.replace(/\/$/, "")}${path}`);
     url.searchParams.set("bpscPreview", "1");
@@ -44,7 +41,8 @@ export function PublicPreview() {
     const handleReady = (event: MessageEvent) => {
       if (
         event.data?.type === "BPSC_PREVIEW_READY" &&
-        event.source === frameRef.current?.contentWindow
+        event.source === frameRef.current?.contentWindow &&
+        event.origin === targetOrigin
       ) {
         sendDraft();
       }
@@ -52,7 +50,7 @@ export function PublicPreview() {
 
     window.addEventListener("message", handleReady);
     return () => window.removeEventListener("message", handleReady);
-  }, [sendDraft]);
+  }, [sendDraft, targetOrigin]);
 
   useEffect(() => {
     sendDraft();
