@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ExternalLink, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePreviewContext } from "./PreviewContext";
 
 const routes = [
   { label: "Trang chủ", path: "/" },
@@ -13,8 +14,49 @@ const routes = [
 
 export function PublicPreview() {
   const [path, setPath] = useState("/");
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const { drafts, visibility } = usePreviewContext();
   const clientUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "http://localhost:8081";
-  const previewUrl = useMemo(() => `${clientUrl.replace(/\/$/, "")}${path}`, [clientUrl, path]);
+  const targetOrigin = useMemo(() => {
+    try {
+      return new URL(clientUrl).origin;
+    } catch {
+      return "*";
+    }
+  }, [clientUrl]);
+  const previewUrl = useMemo(() => {
+    const url = new URL(`${clientUrl.replace(/\/$/, "")}${path}`);
+    url.searchParams.set("bpscPreview", "1");
+    return url.toString();
+  }, [clientUrl, path]);
+
+  const sendDraft = useCallback(() => {
+    frameRef.current?.contentWindow?.postMessage(
+      {
+        type: "BPSC_PREVIEW_UPDATE",
+        payload: { drafts, visibility },
+      },
+      targetOrigin,
+    );
+  }, [drafts, targetOrigin, visibility]);
+
+  useEffect(() => {
+    const handleReady = (event: MessageEvent) => {
+      if (
+        event.data?.type === "BPSC_PREVIEW_READY" &&
+        event.source === frameRef.current?.contentWindow
+      ) {
+        sendDraft();
+      }
+    };
+
+    window.addEventListener("message", handleReady);
+    return () => window.removeEventListener("message", handleReady);
+  }, [sendDraft]);
+
+  useEffect(() => {
+    sendDraft();
+  }, [sendDraft, path]);
 
   return (
     <aside
@@ -57,9 +99,11 @@ export function PublicPreview() {
         <div className="h-full overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
           <iframe
             key={previewUrl}
+            ref={frameRef}
             src={previewUrl}
             title="Bản xem trước website công khai"
             className="origin-top-left bg-slate-50"
+            onLoad={sendDraft}
             style={{
               width: "217.4%",
               height: "217.4%",

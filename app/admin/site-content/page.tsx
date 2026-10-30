@@ -14,6 +14,7 @@ import {
   type SiteContentKey,
 } from "@/lib/services/siteContentService";
 import { UploadService } from "@/lib/services/uploadService";
+import { usePreviewContext } from "@/components/admin/PreviewContext";
 
 type FieldType = "text" | "textarea" | "number" | "url" | "image";
 
@@ -482,6 +483,10 @@ export default function SiteContentPage() {
   const [loading, setLoading] = useState(true);
   const [savingKey, setSavingKey] = useState<string | null>(null);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
+  const {
+    setDrafts: setPreviewDrafts,
+    setVisibility: setPreviewVisibility,
+  } = usePreviewContext();
 
   const numberFields = useMemo(() => {
     const result = new Set<string>();
@@ -510,6 +515,8 @@ export default function SiteContentPage() {
 
         setDrafts(nextDrafts);
         setVisibility(nextVisibility);
+        setPreviewDrafts(nextDrafts);
+        setPreviewVisibility(nextVisibility);
       } catch (error) {
         console.error(error);
         toast.error("Không thể tải nội dung website");
@@ -519,24 +526,28 @@ export default function SiteContentPage() {
     };
 
     void load();
-  }, []);
+  }, [setPreviewDrafts, setPreviewVisibility]);
 
   const updateField = (
     sectionKey: SiteContentKey,
     fieldName: string,
     value: string,
   ) => {
-    setDrafts((current) => ({
-      ...current,
-      [sectionKey]: {
-        ...(current[sectionKey] ?? {}),
-        [fieldName]: numberFields.has(`${sectionKey}:${fieldName}`)
-          ? value === ""
-            ? ""
-            : Number(value)
-          : value,
-      },
-    }));
+    setDrafts((current) => {
+      const next = {
+        ...current,
+        [sectionKey]: {
+          ...(current[sectionKey] ?? {}),
+          [fieldName]: numberFields.has(`${sectionKey}:${fieldName}`)
+            ? value === ""
+              ? ""
+              : Number(value)
+            : value,
+        },
+      };
+      setPreviewDrafts(next);
+      return next;
+    });
   };
 
   const uploadImage = async (
@@ -610,10 +621,11 @@ export default function SiteContentPage() {
                   id={`visible-${section.key}`}
                   checked={visibility[section.key] ?? true}
                   onCheckedChange={(checked) =>
-                    setVisibility((current) => ({
-                      ...current,
-                      [section.key]: checked,
-                    }))
+                    setVisibility((current) => {
+                      const next = { ...current, [section.key]: checked };
+                      setPreviewVisibility(next);
+                      return next;
+                    })
                   }
                 />
               </div>
