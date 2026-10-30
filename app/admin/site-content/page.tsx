@@ -127,7 +127,7 @@ const sections: SectionDefinition[] = [
   {
     key: "about_hero",
     title: "About · Hero",
-    description: "About-page hero section.",
+    description: "About-page hero section and background image.",
     fields: [
       { name: "title", label: "Title" },
       { name: "subtitle", label: "Subtitle", type: "textarea" },
@@ -221,20 +221,22 @@ const sections: SectionDefinition[] = [
   {
     key: "team_hero",
     title: "Team · Hero",
-    description: "Copy above the dynamic member/board listing.",
+    description: "Copy and background image above the dynamic member/board listing.",
     fields: [
       { name: "title", label: "Title" },
       { name: "description", label: "Description", type: "textarea" },
       { name: "view_more_label", label: "View-more members label" },
+      { name: "background_image_url", label: "Hero background image", type: "image" },
     ],
   },
   {
     key: "events_page",
     title: "Events Page",
-    description: "Hero and collaboration CTA around dynamic event data.",
+    description: "Hero background image and collaboration CTA around dynamic event data.",
     fields: [
       { name: "hero_title", label: "Hero title" },
       { name: "hero_description", label: "Hero description", type: "textarea" },
+      { name: "background_image_url", label: "Hero background image", type: "image" },
       { name: "cta_title", label: "CTA title" },
       { name: "cta_description", label: "CTA description", type: "textarea" },
       { name: "primary_label", label: "Primary button label" },
@@ -246,10 +248,11 @@ const sections: SectionDefinition[] = [
   {
     key: "blogs_page",
     title: "News / Blogs Page",
-    description: "Hero copy above dynamic blog content.",
+    description: "Hero copy and background image above dynamic blog content.",
     fields: [
       { name: "hero_title", label: "Hero title" },
       { name: "hero_description", label: "Hero description", type: "textarea" },
+      { name: "background_image_url", label: "Hero background image", type: "image" },
     ],
   },
   {
@@ -457,6 +460,7 @@ const fieldLabels: Record<string, string> = {
   "CTA label": "Nhãn nút hành động",
   "CTA URL": "Đường dẫn nút hành động",
   "Image URL": "Đường dẫn ảnh",
+  "Hero background image": "Ảnh nền phần đầu trang",
 };
 
 const translateFieldLabel = (label: string) => {
